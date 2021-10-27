@@ -53,6 +53,10 @@ impl Vec3 {
     pub fn norm(&self) -> f64 {
         (self.x*self.x + self.y*self.y + self.z*self.z).sqrt()
     }
+    
+    pub fn norm_sqared(&self) -> f64 {
+        self.x*self.x + self.y*self.y + self.z*self.z
+    }
 
     pub fn normalized(&self) -> Vec3 {
         Vec3 {x: self.x/self.norm(), y: self.y/self.norm(), z: self.z/self.norm()}

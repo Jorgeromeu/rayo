@@ -1,29 +1,52 @@
 extern crate image;
 
 use image::{ImageBuffer, RgbImage};
+use intersection::Hittable;
 
 mod vec;
 mod ray;
+mod intersection;
 
-fn hit_sphere(center: vec::Vec3, radius: f64, ray: &ray::Ray) -> bool {
-    let oc = ray.origin - center;
-    let a = vec::dotprod(ray.dir, ray.dir);
-    let b = 2.0 * vec::dotprod(oc, ray.dir);
-    let c = vec::dotprod(oc, oc) - radius*radius;
-    let discriminant = b*b - 4.0*a*c;
-    return discriminant > 0.0;
+fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene) -> image::Rgb<u8> {
+
+    // intersect scene
+    let hit_info = scene.intersect(ray);
+
+    // shade (using fake shading)
+    if hit_info.is_hit {
+        let red = (hit_info.normal.x * 200.0) as u8;
+        let green = (hit_info.normal.y * 200.0) as u8;
+        let blue = (hit_info.normal.z * 200.0) as u8;
+        return image::Rgb([red, green, blue])
+    } 
+
+    // no hit
+    return image::Rgb([0, 0, 0])
 }
 
-fn get_final_color(ray: &ray::Ray) -> image::Rgb<u8> {
+fn construct_scene() -> intersection::Scene {
+    
+    let mut scene = intersection::empty_scene();
 
-    let sphere_center = vec::Vec3 {x: 0.0, y: 0.0, z: -1.0};
-    let sphere_radius = 0.5;
+    // main sphere
+    let sphere = intersection::Sphere {
+        center: vec::Vec3 {x: 0.0, y: 0.0, z: -1.0},
+        radius: 0.5
+    };
+    scene.spheres.push(sphere);
+   
+    // floor sphere
+    let floor = intersection::Sphere {
+        center: vec::Vec3 {
+            x: 0.0,
+            y: -100.5,
+            z: -1.0
+        },
+        radius: 100.0
+    };
+    scene.spheres.push(floor);
 
-    if hit_sphere(sphere_center, sphere_radius, ray) {
-        return image::Rgb([255, 0, 0])
-    }
-
-    image::Rgb([0, 0, 0])
+    scene
 }
 
 fn main() {
@@ -41,12 +64,13 @@ fn main() {
     const ORIGIN: vec::Vec3 = vec::Vec3 {x: 0.0, y: 0.0, z: 0.0};
     const HORIZONTAL: vec::Vec3 = vec::Vec3 {x: VIEWPORT_WIDTH, y:0.0, z: 0.0};
     const VERTICAL: vec::Vec3 = vec::Vec3 {x: 0.0, y: VIEWPORT_HEIGHT, z: 0.0};
-
     let lower_left_corner = ORIGIN - HORIZONTAL/2.0 - VERTICAL/2.0 - vec::Vec3{x: 0.0, y: 0.0, z: FOCAL_LENGTH};
 
-    let mut img: RgbImage = ImageBuffer::new(IMG_X, IMG_Y);
+    // Construct Scene
+    let scene = construct_scene();
 
-    println!("WTF?");
+    // Initialize image
+    let mut img: RgbImage = ImageBuffer::new(IMG_X, IMG_Y);
 
     for y in (0..IMG_Y).rev() {
 
@@ -63,7 +87,7 @@ fn main() {
                 dir: lower_left_corner + u*HORIZONTAL + v*VERTICAL - ORIGIN
             };
 
-            *img.get_pixel_mut(x, y) = get_final_color(&camera_ray);
+            *img.get_pixel_mut(x, y) = get_final_color(&camera_ray, &scene);
         }
     }
 
