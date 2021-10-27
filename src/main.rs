@@ -1,11 +1,29 @@
 extern crate image;
+
 use image::{ImageBuffer, RgbImage};
 
 mod vec;
 mod ray;
 
+fn hit_sphere(center: vec::Vec3, radius: f64, ray: &ray::Ray) -> bool {
+    let oc = ray.origin - center;
+    let a = vec::dotprod(ray.dir, ray.dir);
+    let b = 2.0 * vec::dotprod(oc, ray.dir);
+    let c = vec::dotprod(oc, oc) - radius*radius;
+    let discriminant = b*b - 4.0*a*c;
+    return discriminant > 0.0;
+}
+
 fn get_final_color(ray: &ray::Ray) -> image::Rgb<u8> {
-    image::Rgb([255, 255, 0])
+
+    let sphere_center = vec::Vec3 {x: 0.0, y: 0.0, z: -1.0};
+    let sphere_radius = 0.5;
+
+    if hit_sphere(sphere_center, sphere_radius, ray) {
+        return image::Rgb([255, 0, 0])
+    }
+
+    image::Rgb([0, 0, 0])
 }
 
 fn main() {
@@ -28,16 +46,21 @@ fn main() {
 
     let mut img: RgbImage = ImageBuffer::new(IMG_X, IMG_Y);
 
-    for x in 0..IMG_X {
-        println!("Lines remaining: {}", IMG_X - x);
-        for y in 0..IMG_Y {
+    println!("WTF?");
+
+    for y in (0..IMG_Y).rev() {
+
+        println!("y is: {}", y);
+
+        for x in 0..IMG_X {
 
             let u = x as f64 / (IMG_X-1) as f64;
             let v = y as f64 / (IMG_Y-1) as f64;
+
             let camera_ray = ray::Ray {
                 t: 0.0,
                 origin: ORIGIN, 
-                direction: lower_left_corner + u*HORIZONTAL + u*VERTICAL - ORIGIN
+                dir: lower_left_corner + u*HORIZONTAL + v*VERTICAL - ORIGIN
             };
 
             *img.get_pixel_mut(x, y) = get_final_color(&camera_ray);
