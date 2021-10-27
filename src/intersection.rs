@@ -14,6 +14,7 @@ pub struct Sphere {
 #[derive(Debug, Clone, Copy)]
 pub struct HitInfo {
     pub is_hit: bool,
+    pub front_face: bool,
     pub t: f64,
     pub normal: vec::Vec3,
 }
@@ -21,6 +22,7 @@ pub struct HitInfo {
 pub fn empty_hit_info() -> HitInfo {
     HitInfo {
         is_hit: false,
+        front_face: false,
         t: 0.0,
         normal: vec::Vec3 {
             x: 0.0,

@@ -1,70 +1,60 @@
 extern crate image;
 
-use image::{ImageBuffer, RgbImage};
+use image::{ImageBuffer, Pixel, RgbImage};
 use intersection::Hittable;
+use rand::Rng;
+use crate::vec::{Vec3};
+use crate::color::{Color};
 
-mod vec;
-mod ray;
+mod camera;
 mod intersection;
+mod ray;
+mod vec;
+mod color;
 
-fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene) -> image::Rgb<u8> {
-
+fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene) -> Color {
     // intersect scene
     let hit_info = scene.intersect(ray);
 
     // shade (using fake shading)
     if hit_info.is_hit {
-        let red = (hit_info.normal.x * 200.0) as u8;
-        let green = (hit_info.normal.y * 200.0) as u8;
-        let blue = (hit_info.normal.z * 200.0) as u8;
-        return image::Rgb([red, green, blue])
-    } 
+        let red = (hit_info.normal.x * 200.0) as u32;
+        let green = (hit_info.normal.y * 200.0) as u32;
+        let blue = (hit_info.normal.z * 200.0) as u32;
+
+        return Color::new(red, green, blue);
+    }
 
     // no hit
-    return image::Rgb([0, 0, 0])
+    return Color::black();
 }
 
 fn construct_scene() -> intersection::Scene {
-    
-    let mut scene = intersection::empty_scene();
-
     // main sphere
     let sphere = intersection::Sphere {
-        center: vec::Vec3 {x: 0.0, y: 0.0, z: -1.0},
-        radius: 0.5
+        center: Vec3::new(0.0, 0.0, -1.0),
+        radius: 0.5,
     };
-    scene.spheres.push(sphere);
-   
-    // floor sphere
-    let floor = intersection::Sphere {
-        center: vec::Vec3 {
-            x: 0.0,
-            y: -100.5,
-            z: -1.0
-        },
-        radius: 100.0
-    };
-    scene.spheres.push(floor);
 
+    // add spheres
+    let mut scene = intersection::empty_scene();
+    scene.spheres.push(sphere);
     scene
 }
 
 fn main() {
+    let mut rng = rand::thread_rng();
 
-    // image
+    // image TODO read from cli
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMG_X: u32 = 500;
     const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
 
-    // camera
-    const VIEWPORT_HEIGHT: f64 = 2.0;
-    const VIEWPORT_WIDTH: f64 = ASPECT_RATIO * VIEWPORT_HEIGHT;
-    const FOCAL_LENGTH: f64 = 1.0;
+    // anti aliasing
+    const NUM_AA_RAYS: u32 = 5;
 
-    const ORIGIN: vec::Vec3 = vec::Vec3 {x: 0.0, y: 0.0, z: 0.0};
-    const HORIZONTAL: vec::Vec3 = vec::Vec3 {x: VIEWPORT_WIDTH, y:0.0, z: 0.0};
-    const VERTICAL: vec::Vec3 = vec::Vec3 {x: 0.0, y: VIEWPORT_HEIGHT, z: 0.0};
-    let lower_left_corner = ORIGIN - HORIZONTAL/2.0 - VERTICAL/2.0 - vec::Vec3{x: 0.0, y: 0.0, z: FOCAL_LENGTH};
+    // Construct Camera
+    let camera = camera::Camera::new(Vec3::zero(), 1.0, ASPECT_RATIO, 2.0);
 
     // Construct Scene
     let scene = construct_scene();
@@ -72,22 +62,29 @@ fn main() {
     // Initialize image
     let mut img: RgbImage = ImageBuffer::new(IMG_X, IMG_Y);
 
+    // Main ray tracing loop
     for y in (0..IMG_Y).rev() {
-
         println!("y is: {}", y);
-
         for x in 0..IMG_X {
+            // compute normalized pixel positions
+            let u = x as f64 / (IMG_X - 1) as f64;
+            let v = y as f64 / (IMG_Y - 1) as f64;
 
-            let u = x as f64 / (IMG_X-1) as f64;
-            let v = y as f64 / (IMG_Y-1) as f64;
+            let camera_ray = camera.generate_ray(u, v);
+            let mut color = get_final_color(&camera_ray, &scene);
 
-            let camera_ray = ray::Ray {
-                t: 0.0,
-                origin: ORIGIN, 
-                dir: lower_left_corner + u*HORIZONTAL + v*VERTICAL - ORIGIN
-            };
+            // Anti aliasing rays
+            for _ in 0..NUM_AA_RAYS {
+                let dx = rng.gen_range(0..10) as f64 / 3000.0;
+                let dy = rng.gen_range(0..10) as f64 / 3000.0;
 
-            *img.get_pixel_mut(x, y) = get_final_color(&camera_ray, &scene);
+                let secondary_ray = camera.generate_ray(u+dx, v+dy);
+                color += get_final_color(&secondary_ray, &scene);
+            }
+            color /= NUM_AA_RAYS+1;
+
+            color.rescale();
+            *img.get_pixel_mut(x, y) = color.to_pixel();
         }
     }
 
