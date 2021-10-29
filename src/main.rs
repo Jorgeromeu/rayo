@@ -1,10 +1,11 @@
-extern crate image;
+use std::time;
 
-use image::{ImageBuffer, Pixel, Rgb, RgbImage};
+use image::{ImageBuffer, Rgb, RgbImage};
 use rayon;
 use intersection::Hittable;
-use rand::Rng;
+use rand;
 use rayon::iter::*;
+use indicatif::ProgressBar;
 use crate::vec::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
@@ -17,16 +18,16 @@ mod color;
 
 // image TODO read from cli
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
-const IMG_X: u32 = 300;
+const IMG_X: u32 = 400;
 const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
     
 // anti aliasing
-const NUM_SAMPLES: u32 = 5;
+const NUM_SAMPLES: u32 = 500;
 
 // recursive max depth
-const MAX_DEPTH: u32 = 20; 
+const MAX_DEPTH: u32 = 30; 
 
-fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
+fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
 
     // if we have exceeded the depth limit no more light is gathered
     if depth > MAX_DEPTH {
@@ -37,12 +38,13 @@ fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> C
     let hit = scene.intersect(ray, 0.0, f64::MAX);
 
     if hit.is_hit {
-        let target = hit.point + hit.normal + Vec3::random_in_unit_sphere();
+        // lambert
+        let target = hit.point + hit.normal + Vec3::random_unit();
         let recursive_ray = Ray::new(hit.point, target - hit.point);
-        return 0.5 * get_final_color(&recursive_ray, scene, depth+1);
+        return 0.5 * ray_color(&recursive_ray, scene, depth+1);
 
         // fake shading
-        // let vec_color = 0.6 * (hit_info.normal + Vec3::new(1.0, 1.0, 1.0));
+        // let vec_color = 0.5 * (hit.normal + Vec3::new(1.0, 1.0, 1.0));
         // return Color::new(vec_color.x, vec_color.y, vec_color.z);
     }
 
@@ -83,31 +85,46 @@ fn main() {
     // Enumerate the pixels
     let mut pixels: Vec<(u32, u32, &mut Rgb<u8>)> = img.enumerate_pixels_mut().collect();
 
+    // Initialize progressbar
+    let bar = ProgressBar::new((IMG_X * IMG_Y) as u64);
+
+
+    let start_time = time::Instant::now();
+
     // main ray tracing loop 
     pixels.par_iter_mut().for_each(|tup| {
 
         let x = tup.0;
         let y = IMG_Y - 1 - tup.1; 
 
-        let mut rng = rand::thread_rng();
-
-        // // compute normalized pixel positions
-        let u = x as f64 / (IMG_X - 1) as f64;
-        let v = y as f64 / (IMG_Y - 1) as f64;
-
+        // start with a black color
         let mut color = Color::black();
 
         // sample several times
         for _ in 0..NUM_SAMPLES {
-            let dx = rng.gen_range(0..10) as f64 / 3000.0;
-            let dy = rng.gen_range(0..10) as f64 / 3000.0;
-            let secondary_ray = camera.generate_ray(u+dx, v+dy);
-            color += get_final_color(&secondary_ray, &scene, 0);
+
+            let u = ((x as f64) + rand::random::<f64>()) / (IMG_X - 1) as f64;
+            let v = ((y as f64) + rand::random::<f64>() as f64) / (IMG_Y - 1) as f64;
+
+            let secondary_ray = camera.generate_ray(u, v);
+            color += ray_color(&secondary_ray, &scene, 0);
         }
 
+        // write pixel to image buffer
         let final_pix = color.to_pixel(NUM_SAMPLES);
         *(tup.2) = final_pix;
-    });
 
+        // increment progressbar 
+        bar.inc(1);
+    });
+    
+    let elapsed = start_time.elapsed();
+
+    // finish progressbar
+    bar.finish();
+
+    println!("rendering took: {} seconds", elapsed.as_secs());
+
+    // write image
     img.save("img.png").unwrap();
 }

@@ -3,9 +3,8 @@ name = "rayo"
 version = "0.1.0"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-rand = "0.8.4"
-image = "0.23.14"
-rayon = "1.5.1"
+rand = "0.8.4" # random numbers
+image = "0.23.14" # ez image writing
+rayon = "1.5.1" # parallelization
+indicatif = "0.16.2" # progres bar

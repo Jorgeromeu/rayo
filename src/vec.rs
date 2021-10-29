@@ -73,10 +73,11 @@ impl Vec3 {
         Vec3 {x: rx, y: ry, z: rz}
     }
     
-    // TODO wtf does this do?
-    pub fn random_in_unit_sphere() -> Vec3 {
-        let mut rng = rand::thread_rng();
-        Vec3::random(-1.0, 1.0).normalized() * rng.gen_range(0.0..1.0)
+    pub fn random_unit() -> Vec3 {
+        let rx: f64 = rand::random();
+        let ry: f64 = rand::random();
+        let rz: f64 = rand::random();
+        Vec3 {x: rx, y: ry, z: rz}
     }
 
     pub fn zero() -> Vec3 {
