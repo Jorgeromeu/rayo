@@ -4,16 +4,7 @@ A simple ray tracer written in rust.
 
 # TODO
 
-## Efficiency
-
-- [x] Parallelize on CPU
-- [ ] Port to CUDA?
-
-## Ray tracing related
-
-- Implement multiple materials
-
-## Random things
-
-- [ ] create a nice CLI using argparse
-- [ ] read the scene from config file (json?)
+- Rewrite "lib" into a single module with submodules
+- Learn about ownership, lifespan etc
+- Rewrite to use pointers in genera
+- Implement material

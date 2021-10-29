@@ -31,11 +31,11 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
 
     // if we have exceeded the depth limit no more light is gathered
     if depth > MAX_DEPTH {
-        return Color::new(0.0, 0.0, 0.0);
+        return Color::black();
     }
 
     // intersect scene
-    let hit = scene.intersect(ray, 0.0, f64::MAX);
+    let hit = scene.intersect(ray, 0.1, f64::MAX);
 
     if hit.is_hit {
         // lambert
