@@ -1,5 +1,7 @@
 use std::ops;
 
+use rand::Rng;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     pub x: f64,
@@ -47,6 +49,14 @@ impl ops::Div<f64> for Vec3 {
     }
 }
 
+impl ops::Neg for Vec3 {
+    type Output = Self;
+    
+    fn neg(self) -> Self::Output {
+        Vec3 {x: -self.x, y: -self.y, z: -self.z}
+    }
+}
+
 // vec3
 
 impl Vec3 {
@@ -54,7 +64,21 @@ impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 {x, y, z}
     }
+
+    pub fn random(min: f64, max: f64) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        let rx: f64 = rng.gen_range(min..max);
+        let ry: f64 = rng.gen_range(min..max);
+        let rz: f64 = rng.gen_range(min..max);
+        Vec3 {x: rx, y: ry, z: rz}
+    }
     
+    // TODO wtf does this do?
+    pub fn random_in_unit_sphere() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Vec3::random(-1.0, 1.0).normalized() * rng.gen_range(0.0..1.0)
+    }
+
     pub fn zero() -> Vec3 {
         Vec3 {x: 0.0, y: 0.0, z: 0.0}
     }

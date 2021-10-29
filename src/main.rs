@@ -1,10 +1,11 @@
 extern crate image;
 
-use image::{ImageBuffer, Pixel, RgbImage};
+use image::{ImageBuffer, RgbImage};
 use intersection::Hittable;
 use rand::Rng;
-use crate::vec::{Vec3};
-use crate::color::{Color};
+use crate::vec::Vec3;
+use crate::ray::Ray;
+use crate::color::Color;
 
 mod camera;
 mod intersection;
@@ -12,21 +13,39 @@ mod ray;
 mod vec;
 mod color;
 
-fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene) -> Color {
+// image TODO read from cli
+const ASPECT_RATIO: f64 = 16.0 / 9.0;
+const IMG_X: u32 = 250;
+const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
+    
+// anti aliasing
+const NUM_SAMPLES: u32 = 100;
+
+// recursive max depth
+const MAX_DEPTH: u32 = 40;
+
+fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
+
+    // if we have exceeded the depth limit no more light is gathered
+    if depth > MAX_DEPTH {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
     // intersect scene
-    let hit_info = scene.intersect(ray);
+    let hit = scene.intersect(ray, 0.0, f64::MAX);
 
-    // shade (using fake shading)
-    if hit_info.is_hit {
-        let red = (hit_info.normal.x * 200.0) as u32;
-        let green = (hit_info.normal.y * 200.0) as u32;
-        let blue = (hit_info.normal.z * 200.0) as u32;
+    if hit.is_hit {
+        let target = hit.point + hit.normal + Vec3::random_in_unit_sphere();
+        let recursive_ray = Ray::new(hit.point, target - hit.point);
+        return 0.5 * get_final_color(&recursive_ray, scene, depth+1);
 
-        return Color::new(red, green, blue);
+        // fake shading
+        // let vec_color = 0.6 * (hit_info.normal + Vec3::new(1.0, 1.0, 1.0));
+        // return Color::new(vec_color.x, vec_color.y, vec_color.z);
     }
 
     // no hit
-    return Color::black();
+    return Color::sky(ray);
 }
 
 fn construct_scene() -> intersection::Scene {
@@ -36,22 +55,20 @@ fn construct_scene() -> intersection::Scene {
         radius: 0.5,
     };
 
+    let floor = intersection::Sphere {
+        center: Vec3::new(0.0, -100.5, -1.0),
+        radius: 100.0
+    };
+
     // add spheres
-    let mut scene = intersection::empty_scene();
+    let mut scene = intersection::Scene::empty();
     scene.spheres.push(sphere);
+    scene.spheres.push(floor);
     scene
 }
 
 fn main() {
     let mut rng = rand::thread_rng();
-
-    // image TODO read from cli
-    const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMG_X: u32 = 500;
-    const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
-
-    // anti aliasing
-    const NUM_AA_RAYS: u32 = 5;
 
     // Construct Camera
     let camera = camera::Camera::new(Vec3::zero(), 1.0, ASPECT_RATIO, 2.0);
@@ -70,21 +87,18 @@ fn main() {
             let u = x as f64 / (IMG_X - 1) as f64;
             let v = y as f64 / (IMG_Y - 1) as f64;
 
-            let camera_ray = camera.generate_ray(u, v);
-            let mut color = get_final_color(&camera_ray, &scene);
+            let mut color = Color::black();
 
-            // Anti aliasing rays
-            for _ in 0..NUM_AA_RAYS {
+            // sample several times
+            for _ in 0..NUM_SAMPLES {
                 let dx = rng.gen_range(0..10) as f64 / 3000.0;
                 let dy = rng.gen_range(0..10) as f64 / 3000.0;
-
                 let secondary_ray = camera.generate_ray(u+dx, v+dy);
-                color += get_final_color(&secondary_ray, &scene);
+                color += get_final_color(&secondary_ray, &scene, 0);
             }
-            color /= NUM_AA_RAYS+1;
 
-            color.rescale();
-            *img.get_pixel_mut(x, y) = color.to_pixel();
+            // set pixel
+            *img.get_pixel_mut(x, IMG_Y-1-y) = color.to_pixel(NUM_SAMPLES);
         }
     }
 
