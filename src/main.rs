@@ -1,8 +1,10 @@
 extern crate image;
 
-use image::{ImageBuffer, RgbImage};
+use image::{ImageBuffer, Pixel, Rgb, RgbImage};
+use rayon;
 use intersection::Hittable;
 use rand::Rng;
+use rayon::iter::*;
 use crate::vec::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
@@ -15,14 +17,14 @@ mod color;
 
 // image TODO read from cli
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
-const IMG_X: u32 = 250;
+const IMG_X: u32 = 300;
 const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
     
 // anti aliasing
-const NUM_SAMPLES: u32 = 100;
+const NUM_SAMPLES: u32 = 5;
 
 // recursive max depth
-const MAX_DEPTH: u32 = 40;
+const MAX_DEPTH: u32 = 20; 
 
 fn get_final_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
 
@@ -68,8 +70,7 @@ fn construct_scene() -> intersection::Scene {
 }
 
 fn main() {
-    let mut rng = rand::thread_rng();
-
+    
     // Construct Camera
     let camera = camera::Camera::new(Vec3::zero(), 1.0, ASPECT_RATIO, 2.0);
 
@@ -79,28 +80,34 @@ fn main() {
     // Initialize image
     let mut img: RgbImage = ImageBuffer::new(IMG_X, IMG_Y);
 
-    // Main ray tracing loop
-    for y in (0..IMG_Y).rev() {
-        println!("y is: {}", y);
-        for x in 0..IMG_X {
-            // compute normalized pixel positions
-            let u = x as f64 / (IMG_X - 1) as f64;
-            let v = y as f64 / (IMG_Y - 1) as f64;
+    // Enumerate the pixels
+    let mut pixels: Vec<(u32, u32, &mut Rgb<u8>)> = img.enumerate_pixels_mut().collect();
 
-            let mut color = Color::black();
+    // main ray tracing loop 
+    pixels.par_iter_mut().for_each(|tup| {
 
-            // sample several times
-            for _ in 0..NUM_SAMPLES {
-                let dx = rng.gen_range(0..10) as f64 / 3000.0;
-                let dy = rng.gen_range(0..10) as f64 / 3000.0;
-                let secondary_ray = camera.generate_ray(u+dx, v+dy);
-                color += get_final_color(&secondary_ray, &scene, 0);
-            }
+        let x = tup.0;
+        let y = IMG_Y - 1 - tup.1; 
 
-            // set pixel
-            *img.get_pixel_mut(x, IMG_Y-1-y) = color.to_pixel(NUM_SAMPLES);
+        let mut rng = rand::thread_rng();
+
+        // // compute normalized pixel positions
+        let u = x as f64 / (IMG_X - 1) as f64;
+        let v = y as f64 / (IMG_Y - 1) as f64;
+
+        let mut color = Color::black();
+
+        // sample several times
+        for _ in 0..NUM_SAMPLES {
+            let dx = rng.gen_range(0..10) as f64 / 3000.0;
+            let dy = rng.gen_range(0..10) as f64 / 3000.0;
+            let secondary_ray = camera.generate_ray(u+dx, v+dy);
+            color += get_final_color(&secondary_ray, &scene, 0);
         }
-    }
+
+        let final_pix = color.to_pixel(NUM_SAMPLES);
+        *(tup.2) = final_pix;
+    });
 
     img.save("img.png").unwrap();
 }
