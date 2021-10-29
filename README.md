@@ -8,3 +8,7 @@ A simple ray tracer written in rust.
 - Learn about ownership, lifespan etc
 - Rewrite to use pointers in genera
 - Implement material
+
+# Spotlight
+
+![Best render](renders/best.png)
