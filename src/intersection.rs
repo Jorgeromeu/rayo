@@ -1,5 +1,5 @@
-use crate::ray;
-use crate::vec;
+use crate::ray::Ray;
+use crate::vec::Vec3;
 
 pub struct Scene {
     pub spheres: Vec<Sphere>,
@@ -8,15 +8,15 @@ pub struct Scene {
 #[derive(Debug, Clone, Copy)]
 pub struct Sphere {
     pub radius: f64,
-    pub center: vec::Vec3,
+    pub center: Vec3,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct HitInfo {
     pub is_hit: bool,
-    pub normal: vec::Vec3,
+    pub normal: Vec3,
     pub t: f64,
-    pub point: vec::Vec3,
+    pub point: Vec3,
     pub front_face: bool,
 }
 
@@ -25,14 +25,14 @@ impl HitInfo {
         HitInfo {
             is_hit: false,
             front_face: false,
-            point: vec::Vec3::zero(),
+            point: Vec3::zero(),
             t: 0.0,
-            normal: vec::Vec3::zero()
+            normal: Vec3::zero()
         }
     }
 
-    pub fn set_face_normal(&mut self, ray: &ray::Ray, outward_normal: vec::Vec3) {
-        self.front_face = vec::dotprod(ray.dir, outward_normal) < 0.0;
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
+        self.front_face = Vec3::dot(&ray.dir, &outward_normal) < 0.0;
         self.normal = if self.front_face { outward_normal } else { -outward_normal }
     }
 }
@@ -44,11 +44,11 @@ impl Scene {
 }
 
 pub trait Hittable {
-    fn intersect(&self, ray: &ray::Ray, t_min: f64, t_max: f64) -> HitInfo;
+    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> HitInfo;
 }
 
 impl Hittable for Scene {
-    fn intersect(&self, ray: &ray::Ray, t_min: f64, t_max: f64) -> HitInfo {
+    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> HitInfo {
         for sphere in &(self.spheres) {
             let sphere_hit_info = sphere.intersect(ray,t_min, t_max);
             if sphere_hit_info.is_hit {
@@ -60,14 +60,14 @@ impl Hittable for Scene {
 }
 
 impl Hittable for Sphere {
-    fn intersect(&self, ray: &ray::Ray, t_min: f64, t_max: f64) -> HitInfo {
+    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> HitInfo {
         let oc = ray.origin - self.center;
         let a = ray.dir.norm_sqared();
-        let half_b = vec::dotprod(oc, ray.dir);
+        let half_b = Vec3::dot(&oc, &ray.dir);
         let c = oc.norm_sqared() - self.radius.powi(2);
 
+        // compute discriminant
         let discr = half_b * half_b - a * c;
-
 
         // no hit
         if discr < 0.0 {
@@ -92,7 +92,7 @@ impl Hittable for Sphere {
         hit_info.t = root;
         hit_info.point = ray.at(hit_info.t);
 
-        let outward_normal = ray.at(hit_info.t) - vec::Vec3::new(0.0, 0.0, -1.0).normalized();
+        let outward_normal = ray.at(hit_info.t) - Vec3::new(0.0, 0.0, -1.0).normalized();
         hit_info.set_face_normal(ray, outward_normal);
 
         hit_info

@@ -1,7 +1,7 @@
 use crate::color::Color;
 use crate::intersection::HitInfo;
-use crate::ray::{self, Ray};
-use crate::vec::{dotprod, Vec3};
+use crate::ray::Ray;
+use crate::vec::Vec3;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Material {

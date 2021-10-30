@@ -9,6 +9,7 @@ pub struct Vec3 {
     pub z: f64,
 }
 
+// Elementwise addition, subtraction and multiplication
 impl ops::Add<Vec3> for Vec3 {
     type Output = Vec3;
 
@@ -25,6 +26,16 @@ impl ops::Sub<Vec3> for Vec3 {
     }
 }
 
+impl ops::Mul<Vec3> for Vec3 {
+
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3 {x: self.x*rhs.x, y: self.y*rhs.y, z: self.z*rhs.z}
+    }  
+}
+
+// Vector - float product and division
 impl ops::Mul<f64> for Vec3 {
     type Output = Vec3;
 
@@ -57,7 +68,21 @@ impl ops::Neg for Vec3 {
     }
 }
 
-// vec3
+impl ops::MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }    
+}
+
+impl ops::DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, rhs: f64) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }    
+}
 
 impl Vec3 {
 
@@ -80,6 +105,10 @@ impl Vec3 {
         Vec3 {x: rx, y: ry, z: rz}
     }
 
+    pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
+        v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
+    }
+
     pub fn zero() -> Vec3 {
         Vec3 {x: 0.0, y: 0.0, z: 0.0}
     }
@@ -95,8 +124,9 @@ impl Vec3 {
     pub fn normalized(&self) -> Vec3 {
         Vec3 {x: self.x/self.norm(), y: self.y/self.norm(), z: self.z/self.norm()}
     }
-}
-
-pub fn dotprod(v1: Vec3, v2: Vec3) -> f64 {
-    v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
+    
+    pub fn normalize(&mut self) {
+        let norm = self.norm();
+        *self /= norm;
+    }
 }
