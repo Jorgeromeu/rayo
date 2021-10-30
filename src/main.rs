@@ -37,19 +37,18 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
     // intersect scene
     let hit = scene.intersect(ray, 0.1, f64::MAX);
 
-    if hit.is_hit {
-        // lambert
-        let target = hit.point + hit.normal + Vec3::random_unit();
-        let recursive_ray = Ray::new(hit.point, target - hit.point);
-        return 0.5 * ray_color(&recursive_ray, scene, depth+1);
+    match hit {
+        Some(hit) => {
+        
+            let target = hit.point + hit.normal + Vec3::random_unit();
+            let recursive_ray = Ray::new(hit.point, target - hit.point);
+            
+            // recurse
+            0.5 * ray_color(&recursive_ray, scene, depth+1)
 
-        // fake shading
-        // let vec_color = 0.5 * (hit.normal + Vec3::new(1.0, 1.0, 1.0));
-        // return Color::new(vec_color.x, vec_color.y, vec_color.z);
+        },
+        None => Color::sky(ray)
     }
-
-    // no hit
-    return Color::sky(ray);
 }
 
 fn construct_scene() -> intersection::Scene {
