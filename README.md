@@ -11,4 +11,4 @@ A simple ray tracer written in rust.
 
 # Spotlight
 
-![Best render](renders/best.png)
+![Best render](renders/redgreen.png)

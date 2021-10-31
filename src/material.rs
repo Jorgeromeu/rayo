@@ -9,13 +9,7 @@ pub struct Material {
 }
 
 impl Material {
-    pub fn scatter(
-        self,
-        _ray_in: &Ray,
-        hit: HitInfo,
-        attenuation: &mut Color,
-        scattered_ray: &mut Ray,
-    ) -> bool {
+    pub fn scatter(self, _ray_in: &Ray, hit: HitInfo) -> (Color, Ray) {
         let mut scatter_dir = hit.normal + Vec3::random_unit();
 
         // catch degenerate scatter direction
@@ -23,23 +17,8 @@ impl Material {
             scatter_dir = hit.normal;
         }
 
-        *scattered_ray = Ray::new(hit.point, scatter_dir);
-        *attenuation = self.albedo;
-        true
+        let scattered_ray = Ray::new(hit.point, scatter_dir);
+        let attenuation = self.albedo;
+        (attenuation, scattered_ray)
     }
 }
-
-// impl Material for Metal {
-
-//     fn scatter(self, ray_in: &Ray, hit: HitInfo, attenuation: &mut Color, scattered_ray: &mut Ray) -> bool {
-
-//         // calculate the reflected ray
-//         let reflection_dir = ray_in.dir.reflected(hit.normal);
-
-//         *scattered_ray = Ray::new(hit.point, reflection_dir);
-//         *attenuation = self.albedo;
-
-//         // only reflect if ???
-//         dotprod(scattered_ray.dir, hit.normal) > 0.0
-//     }
-// }

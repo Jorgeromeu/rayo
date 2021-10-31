@@ -1,5 +1,8 @@
+use std::mem::ManuallyDrop;
+
 use crate::ray::Ray;
 use crate::vec::Vec3;
+use crate::material::Material;
 
 pub struct Scene {
     pub spheres: Vec<Sphere>,
@@ -9,6 +12,7 @@ pub struct Scene {
 pub struct Sphere {
     pub radius: f64,
     pub center: Vec3,
+    pub material: Material
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -17,15 +21,17 @@ pub struct HitInfo {
     pub t: f64,
     pub point: Vec3,
     pub front_face: bool,
+    pub material: Material
 }
 
 impl HitInfo {
-    pub fn new(t: f64, hit_ray: &Ray, outward_normal: Vec3) -> HitInfo {
+    pub fn new(t: f64, hit_ray: &Ray, outward_normal: Vec3, material: Material) -> HitInfo {
         let mut hit = HitInfo {
             front_face: false,
             point: hit_ray.at(t),
             t: t,
-            normal: outward_normal
+            normal: outward_normal,
+            material: material
         };
 
         hit.set_face_normal(&hit_ray, outward_normal);
@@ -92,7 +98,7 @@ impl Hittable for Sphere {
         }
         
         let outward_normal = ray.at(root) - Vec3::new(0.0, 0.0, -1.0).normalized();
-        let hit = HitInfo::new(root, ray, outward_normal);
+        let hit = HitInfo::new(root, ray, outward_normal, self.material);
 
         Some(hit)
     }

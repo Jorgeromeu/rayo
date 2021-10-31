@@ -124,7 +124,12 @@ impl Vec3 {
     pub fn normalized(&self) -> Vec3 {
         Vec3 {x: self.x/self.norm(), y: self.y/self.norm(), z: self.z/self.norm()}
     }
-    
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s);
+    }
+
     pub fn normalize(&mut self) {
         let norm = self.norm();
         *self /= norm;

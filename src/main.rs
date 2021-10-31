@@ -1,6 +1,7 @@
 use std::time;
 
 use image::{ImageBuffer, Rgb, RgbImage};
+use material::Material;
 use rayon;
 use intersection::Hittable;
 use rand;
@@ -15,14 +16,15 @@ mod intersection;
 mod ray;
 mod vec;
 mod color;
+mod material;
 
 // image TODO read from cli
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
-const IMG_X: u32 = 400;
+const IMG_X: u32 = 1920;
 const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
     
 // anti aliasing
-const NUM_SAMPLES: u32 = 500;
+const NUM_SAMPLES: u32 = 1000;
 
 // recursive max depth
 const MAX_DEPTH: u32 = 30; 
@@ -39,12 +41,11 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
 
     match hit {
         Some(hit) => {
-        
-            let target = hit.point + hit.normal + Vec3::random_unit();
-            let recursive_ray = Ray::new(hit.point, target - hit.point);
+       
+            let (attenuation, scattered_ray) = hit.material.scatter(ray, hit);
             
             // recurse
-            0.5 * ray_color(&recursive_ray, scene, depth+1)
+            attenuation * ray_color(&scattered_ray, scene, depth+1)
 
         },
         None => Color::sky(ray)
@@ -56,11 +57,13 @@ fn construct_scene() -> intersection::Scene {
     let sphere = intersection::Sphere {
         center: Vec3::new(0.0, 0.0, -1.0),
         radius: 0.5,
+        material: Material {albedo: Color::new(0.8, 0.1, 0.1)}
     };
 
     let floor = intersection::Sphere {
         center: Vec3::new(0.0, -100.5, -1.0),
-        radius: 100.0
+        radius: 100.0,
+        material: Material {albedo: Color::new(0.1, 0.8, 0.1)}
     };
 
     // add spheres
