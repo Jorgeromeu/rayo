@@ -10,8 +10,9 @@ A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray
 
 Many features are yet to be implemented
 
-- [ ] Nice CLI
+- [x] Nice CLI
 - [ ] Reading scenes from json or some other similar format
+- [ ] Support for OBJ files for meshes
 
 ## Shapes
 
