@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::time;
 use image::{ImageBuffer, Rgb, RgbImage};
 use material::Material;
