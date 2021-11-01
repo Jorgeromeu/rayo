@@ -8,4 +8,5 @@ rand = "0.8.4" # random numbers
 image = "0.23.14" # ez image writing
 rayon = "1.5.1" # parallelization
 indicatif = "0.16.2" # progres bar
-clap = "2.33.3"
+clap = "2.33.3" # ez clis
+regex = "1" # obvious

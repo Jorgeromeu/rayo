@@ -1,6 +1,5 @@
-use core::num;
-use std::{clone, time};
-
+use std::any::Any;
+use std::time;
 use image::{ImageBuffer, Rgb, RgbImage};
 use material::Material;
 use rayon;
@@ -9,9 +8,9 @@ use rand;
 use rayon::iter::*;
 use indicatif::ProgressBar;
 use crate::vec::Vec3;
-use crate::ray::Ray;
 use crate::color::Color;
 use clap;
+use regex;
 
 mod camera;
 mod intersection;
@@ -87,6 +86,15 @@ struct CliOptions {
 
 fn read_cli() -> CliOptions {
 
+    fn is_uint_validator(str: &str) -> Result<(), String> {
+        let test = str.parse::<u32>();
+
+        match test {
+            Ok(_) => Ok(()),
+            Err(_) => Err(String::from("Expected an unsigned integer"))
+        }
+    }
+
     // define CLI arguments
     let matches = clap::App::new("rayo")
         .version("0.1")
@@ -100,8 +108,7 @@ fn read_cli() -> CliOptions {
             .value_name("FILE")
             .help("Rendered image path")
             .takes_value(true)
-            .default_value("render.png")
-            .required(false))
+            .default_value("render.png"))
 
         // resolution
         .arg(clap::Arg::with_name("resolution")
@@ -110,15 +117,24 @@ fn read_cli() -> CliOptions {
             .value_name("RESOLUTION")
             .help("Horizontal image resolution")
             .default_value("480")
-            .takes_value(true))
-
+            .takes_value(true)
+            .validator(|s| {is_uint_validator(&s)} ))
         // aspect ratio
         .arg(clap::Arg::with_name("aspect")
             .short("a")
             .long("aspect")
             .value_name("ASPECT-RATIO")
             .help("Aspect ratio")
-            .default_value("16/9"))
+            .default_value("16/9")
+            .validator(|s| {
+                let re = regex::Regex::new(r"^[0-9]+/[0-9]$").unwrap();
+
+                if re.is_match(&s) {
+                    Ok(())
+                } else {
+                    Err(String::from("Expected input of the form: 16/9"))
+                }
+            }))
 
         // max recursion depth
         .arg(clap::Arg::with_name("max-depth")
@@ -126,7 +142,8 @@ fn read_cli() -> CliOptions {
             .long("depth")
             .value_name("MAX-DEPTH")
             .help("Maximum recursion depth")
-            .default_value("30"))
+            .default_value("30")
+            .validator(|s| {is_uint_validator(&s)} ))
         
         // number of smaples per pixel
         .arg(clap::Arg::with_name("num-samples")
@@ -134,7 +151,8 @@ fn read_cli() -> CliOptions {
             .long("num-samples")
             .value_name("NUM-SAMPLES")
             .help("Number of samples per pixel")
-            .default_value("100"))
+            .default_value("100")
+            .validator(|s| {is_uint_validator(&s)} ))
         .get_matches();
 
     // otuput file
