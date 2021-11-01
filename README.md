@@ -2,6 +2,10 @@
 
 A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 
+# Spotlight
+
+![Best render](renders/rednfuzzy.png)
+
 # Features
 
 Many features are yet to be implemented
@@ -33,6 +37,4 @@ Many features are yet to be implemented
 - [ ] parallelize on GPU
 - [ ] bounding volumes
 
-# Spotlight
 
-![Best render](renders/rednfuzzy.png)
