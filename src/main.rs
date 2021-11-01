@@ -24,7 +24,7 @@ const IMG_X: u32 = 1920;
 const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
     
 // anti aliasing
-const NUM_SAMPLES: u32 = 1000;
+const NUM_SAMPLES: u32 = 100;
 
 // recursive max depth
 const MAX_DEPTH: u32 = 30; 
@@ -55,9 +55,15 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
 fn construct_scene() -> intersection::Scene {
     // main sphere
     let sphere = intersection::Sphere {
-        center: Vec3::new(0.0, 0.0, -1.0),
-        radius: 0.5,
+        center: Vec3::new(-0.5, 0.0, -1.0),
+        radius: 0.4,
         material: Material {albedo: Color::new(0.8, 0.1, 0.1)}
+    };
+    
+    let sphere2 = intersection::Sphere {
+        center: Vec3::new(0.5, 0.0, -1.0),
+        radius: 0.4,
+        material: Material {albedo: Color::new(0.1, 0.1, 0.8)}
     };
 
     let floor = intersection::Sphere {
@@ -69,6 +75,7 @@ fn construct_scene() -> intersection::Scene {
     // add spheres
     let mut scene = intersection::Scene::empty();
     scene.spheres.push(sphere);
+    scene.spheres.push(sphere2);
     scene.spheres.push(floor);
     scene
 }

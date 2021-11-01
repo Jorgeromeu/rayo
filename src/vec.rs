@@ -130,6 +130,10 @@ impl Vec3 {
         return (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s);
     }
 
+    pub fn is_close(&self, vec: &Vec3) -> bool {
+        (*self - *vec).near_zero()
+    }
+
     pub fn normalize(&mut self) {
         let norm = self.norm();
         *self /= norm;

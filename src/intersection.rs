@@ -1,5 +1,3 @@
-use std::mem::ManuallyDrop;
-
 use crate::ray::Ray;
 use crate::vec::Vec3;
 use crate::material::Material;
@@ -29,12 +27,12 @@ impl HitInfo {
         let mut hit = HitInfo {
             front_face: false,
             point: hit_ray.at(t),
-            t: t,
+            t: t.clone(),
             normal: outward_normal,
             material: material
         };
 
-        hit.set_face_normal(&hit_ray, outward_normal);
+        hit.set_face_normal(&hit_ray, outward_normal.clone());
 
         hit
     }
@@ -58,7 +56,7 @@ pub trait Hittable {
 impl Hittable for Scene {
     fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitInfo> {
         for sphere in &(self.spheres) {
-            let sphere_hit = sphere.intersect(ray,t_min, t_max);
+            let sphere_hit = sphere.intersect(ray, t_min.clone(), t_max.clone());
 
             // if we hit the sphere return its hit info
             match sphere_hit {
@@ -97,9 +95,35 @@ impl Hittable for Sphere {
             }
         }
         
-        let outward_normal = ray.at(root) - Vec3::new(0.0, 0.0, -1.0).normalized();
+        let outward_normal = (ray.at(root) - self.center).normalized();
         let hit = HitInfo::new(root, ray, outward_normal, self.material);
 
         Some(hit)
+    }
+}
+
+mod tests {
+    use crate::{color::Color, material::Material};
+    use super::*;
+
+    #[test]
+    fn test_sphere_hit() {
+        let s = Sphere {
+            radius: 0.5,
+            center: Vec3::new(0.0, 0.0, -1.0),
+            material: Material {albedo: Color::black()}
+        };
+
+        let ray = Ray::new(Vec3::zero(), Vec3::new(0.0, 0.0, -1.0));
+        let hit = s.intersect(&ray, 0.001, f64::MAX).unwrap();
+  
+        // normal should be normalized
+        assert_eq!(hit.normal.norm(), 1.0);
+
+        // normal should face towards camera
+        assert!(hit.normal.is_close(&Vec3::new(0.0, 0.0, 1.0)));
+
+        // intersectionpoint should be at -0.5
+        assert!(hit.point.is_close(&Vec3::new(0.0, 0.0, -0.5)));
     }
 }
