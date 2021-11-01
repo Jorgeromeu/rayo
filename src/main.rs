@@ -20,7 +20,7 @@ mod material;
 
 // image TODO read from cli
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
-const IMG_X: u32 = 1920;
+const IMG_X: u32 = 500;
 const IMG_Y: u32 = (IMG_X as f64 / ASPECT_RATIO) as u32;
     
 // anti aliasing
@@ -42,10 +42,14 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32) -> Color {
     match hit {
         Some(hit) => {
        
-            let (attenuation, scattered_ray) = hit.material.scatter(ray, hit);
+            let (attenuation, scattered_ray, should_scatter) = hit.material.scatter(ray, hit);
             
-            // recurse
-            attenuation * ray_color(&scattered_ray, scene, depth+1)
+            // scatter
+            if should_scatter {
+                attenuation * ray_color(&scattered_ray, scene, depth+1)
+            } else {
+                Color::black()
+            }
 
         },
         None => Color::sky(ray)
@@ -57,25 +61,25 @@ fn construct_scene() -> intersection::Scene {
     let sphere = intersection::Sphere {
         center: Vec3::new(-0.5, 0.0, -1.0),
         radius: 0.4,
-        material: Material {albedo: Color::new(0.8, 0.1, 0.1)}
+        material: Material::Lambertian {albedo: Color::new(0.8, 0.1, 0.1)}
     };
     
-    let sphere2 = intersection::Sphere {
+    let metalic = intersection::Sphere {
         center: Vec3::new(0.5, 0.0, -1.0),
         radius: 0.4,
-        material: Material {albedo: Color::new(0.1, 0.1, 0.8)}
+        material: Material::Metal {albedo: Color::new(0.9, 0.9, 0.9), fuzz: 0.5}
     };
 
     let floor = intersection::Sphere {
         center: Vec3::new(0.0, -100.5, -1.0),
         radius: 100.0,
-        material: Material {albedo: Color::new(0.1, 0.8, 0.1)}
+        material: Material::Lambertian {albedo: Color::new(0.1, 0.8, 0.1)}
     };
 
     // add spheres
     let mut scene = intersection::Scene::empty();
     scene.spheres.push(sphere);
-    scene.spheres.push(sphere2);
+    scene.spheres.push(metalic);
     scene.spheres.push(floor);
     scene
 }

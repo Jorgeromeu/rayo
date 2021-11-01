@@ -111,7 +111,7 @@ mod tests {
         let s = Sphere {
             radius: 0.5,
             center: Vec3::new(0.0, 0.0, -1.0),
-            material: Material {albedo: Color::black()}
+            material: Material::Lambertian {albedo: Color::black()}
         };
 
         let ray = Ray::new(Vec3::zero(), Vec3::new(0.0, 0.0, -1.0));
