@@ -1,5 +1,6 @@
-use crate::ray;
-use crate::vec;
+use crate::ray::Ray;
+use crate::vec::Vec3;
+use crate::material::Material;
 
 pub struct Scene {
     pub spheres: Vec<Sphere>,
@@ -8,31 +9,36 @@ pub struct Scene {
 #[derive(Debug, Clone, Copy)]
 pub struct Sphere {
     pub radius: f64,
-    pub center: vec::Vec3,
+    pub center: Vec3,
+    pub material: Material
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct HitInfo {
-    pub is_hit: bool,
-    pub normal: vec::Vec3,
+    pub normal: Vec3,
     pub t: f64,
-    pub point: vec::Vec3,
+    pub point: Vec3,
     pub front_face: bool,
+    pub material: Material
 }
 
 impl HitInfo {
-    pub fn new() -> HitInfo {
-        HitInfo {
-            is_hit: false,
+    pub fn new(t: f64, hit_ray: &Ray, outward_normal: Vec3, material: Material) -> HitInfo {
+        let mut hit = HitInfo {
             front_face: false,
-            point: vec::Vec3::zero(),
-            t: 0.0,
-            normal: vec::Vec3::zero()
-        }
+            point: hit_ray.at(t),
+            t: t.clone(),
+            normal: outward_normal,
+            material: material
+        };
+
+        hit.set_face_normal(&hit_ray, outward_normal.clone());
+
+        hit
     }
 
-    pub fn set_face_normal(&mut self, ray: &ray::Ray, outward_normal: vec::Vec3) {
-        self.front_face = vec::dotprod(ray.dir, outward_normal) < 0.0;
+    fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vec3) {
+        self.front_face = Vec3::dot(&ray.dir, &outward_normal) < 0.0;
         self.normal = if self.front_face { outward_normal } else { -outward_normal }
     }
 }
@@ -44,35 +50,38 @@ impl Scene {
 }
 
 pub trait Hittable {
-    fn intersect(&self, ray: &ray::Ray, t_min: f64, t_max: f64) -> HitInfo;
+    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitInfo>;
 }
 
 impl Hittable for Scene {
-    fn intersect(&self, ray: &ray::Ray, t_min: f64, t_max: f64) -> HitInfo {
+    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitInfo> {
         for sphere in &(self.spheres) {
-            let sphere_hit_info = sphere.intersect(ray,t_min, t_max);
-            if sphere_hit_info.is_hit {
-                return sphere_hit_info;
+            let sphere_hit = sphere.intersect(ray, t_min.clone(), t_max.clone());
+
+            // if we hit the sphere return its hit info
+            match sphere_hit {
+                Some(_hit) => return sphere_hit,
+                None => (),
             }
         }
-        return HitInfo::new();
+        None
     }
 }
 
 impl Hittable for Sphere {
-    fn intersect(&self, ray: &ray::Ray, t_min: f64, t_max: f64) -> HitInfo {
+    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitInfo> {
         let oc = ray.origin - self.center;
         let a = ray.dir.norm_sqared();
-        let half_b = vec::dotprod(oc, ray.dir);
+        let half_b = Vec3::dot(&oc, &ray.dir);
         let c = oc.norm_sqared() - self.radius.powi(2);
 
+        // compute discriminant
         let discr = half_b * half_b - a * c;
-
 
         // no hit
         if discr < 0.0 {
-            return HitInfo::new();
-        }
+            return None;
+        } 
 
         // yes hit
         let sqrtd = discr.sqrt();
@@ -82,19 +91,39 @@ impl Hittable for Sphere {
         if root < t_min || t_max < root {
             root = (-half_b + sqrtd) / a;
             if root < t_min || t_max < root {
-                return HitInfo::new();
+                return None;
             }
         }
+        
+        let outward_normal = (ray.at(root) - self.center).normalized();
+        let hit = HitInfo::new(root, ray, outward_normal, self.material);
 
-        // construct hitinfo
-        let mut hit_info = HitInfo::new();
-        hit_info.is_hit = true;
-        hit_info.t = root;
-        hit_info.point = ray.at(hit_info.t);
+        Some(hit)
+    }
+}
 
-        let outward_normal = ray.at(hit_info.t) - vec::Vec3::new(0.0, 0.0, -1.0).normalized();
-        hit_info.set_face_normal(ray, outward_normal);
+mod tests {
+    use crate::{color::Color, material::Material};
+    use super::*;
 
-        hit_info
+    #[test]
+    fn test_sphere_hit() {
+        let s = Sphere {
+            radius: 0.5,
+            center: Vec3::new(0.0, 0.0, -1.0),
+            material: Material::Lambertian {albedo: Color::black()}
+        };
+
+        let ray = Ray::new(Vec3::zero(), Vec3::new(0.0, 0.0, -1.0));
+        let hit = s.intersect(&ray, 0.001, f64::MAX).unwrap();
+  
+        // normal should be normalized
+        assert_eq!(hit.normal.norm(), 1.0);
+
+        // normal should face towards camera
+        assert!(hit.normal.is_close(&Vec3::new(0.0, 0.0, 1.0)));
+
+        // intersectionpoint should be at -0.5
+        assert!(hit.point.is_close(&Vec3::new(0.0, 0.0, -0.5)));
     }
 }

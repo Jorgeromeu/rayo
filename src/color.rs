@@ -24,6 +24,14 @@ impl ops::Sub<Color> for Color {
     }
 }
 
+impl ops::Mul<Color> for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: Color) -> Color {
+        Color { r: self.r*rhs.r, g: self.g*rhs.g, b: self.b*rhs.b }
+    }
+}
+
 impl ops::Mul<f64> for Color {
     type Output = Color;
 
@@ -89,7 +97,7 @@ impl Color {
     }
 
     pub fn white() -> Color {
-        Color {r: 0.0, g: 0.0, b: 0.0}
+        Color {r: 1.0, g: 1.0, b: 1.0}
     }
     
     pub fn black() -> Color {
