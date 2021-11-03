@@ -1,3 +1,7 @@
+use std::panic;
+
+use json::JsonValue;
+
 use crate::ray::Ray;
 use crate::vec::Vec3;
 use crate::material::Material;
@@ -103,6 +107,8 @@ impl Hittable for Sphere {
 }
 
 mod tests {
+    use json::object::Object;
+
     use crate::{color::Color, material::Material};
     use super::*;
 

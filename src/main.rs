@@ -1,11 +1,13 @@
-use std::time;
+use std::{fs, time};
 use image::{ImageBuffer, Rgb, RgbImage};
 use material::Material;
 use rayon;
 use intersection::Hittable;
+use parsing::ParseJson;
 use rand;
 use rayon::iter::*;
 use indicatif::ProgressBar;
+use crate::intersection::Scene;
 use crate::vec::Vec3;
 use crate::color::Color;
 use clap;
@@ -17,6 +19,7 @@ mod ray;
 mod vec;
 mod color;
 mod material;
+mod parsing;
 
 fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32, max_depth: u32) -> Color {
 
@@ -80,7 +83,8 @@ struct CliOptions {
     aspect_ratio: f64,
     max_depth: u32,
     num_samples: u32,
-    output_file: String
+    output_file: String,
+    scene_file: String
 }
 
 fn read_cli() -> CliOptions {
@@ -108,6 +112,12 @@ fn read_cli() -> CliOptions {
             .help("Rendered image path")
             .takes_value(true)
             .default_value("render.png"))
+
+        // scene file
+        .arg(clap::Arg::with_name("scene-file")
+            .value_name("SCENE")
+            .help("The Scene JSON file")
+            .required(true))
 
         // resolution
         .arg(clap::Arg::with_name("resolution")
@@ -157,6 +167,10 @@ fn read_cli() -> CliOptions {
     // otuput file
     let output_file_name = matches.value_of("output-file").unwrap_or_default();
     let output_file = String::from(output_file_name);
+    
+    // otuput file
+    let scene_file_name = matches.value_of("scene-file").unwrap_or_default();
+    let scene_file = String::from(scene_file_name);
    
     // aspect ratio
     let aspect: Vec<&str> = matches.value_of("aspect").unwrap_or_default().split("/").collect();
@@ -176,6 +190,7 @@ fn read_cli() -> CliOptions {
 
     CliOptions {
         output_file,
+        scene_file,
         img_x,
         img_y,
         aspect_ratio,
@@ -193,7 +208,9 @@ fn main() {
     let camera = camera::Camera::new(Vec3::zero(), 1.0, opts.aspect_ratio, 2.0);
 
     // Construct Scene
-    let scene = construct_scene();
+    let scene_text = fs::read_to_string(&opts.scene_file).unwrap();
+    let parsed_text = json::parse(&scene_text).unwrap();
+    let scene = Scene::parse_json(&parsed_text);
 
     // Initialize image
     let mut img: RgbImage = ImageBuffer::new(opts.img_x, opts.img_y);

@@ -14,7 +14,7 @@ Rayo is (currenty) a command line tool. The available flags and options are:
 
 ```
 USAGE:
-    rayo [OPTIONS]
+    rayo [OPTIONS] <SCENE>
 
 FLAGS:
     -h, --help       Prints help information
@@ -26,7 +26,33 @@ OPTIONS:
     -n, --num-samples <NUM-SAMPLES>    Number of samples per pixel [default: 100]
     -o, --out <FILE>                   Rendered image path [default: render.png]
     -r, --resolution <RESOLUTION>      Horizontal image resolution [default: 480]
+
+ARGS:
+    <SCENE>    The Scene JSON file
 ```
+
+To create a render you need to create a corresponding scene file defining the positions, shapes and colors of all of the models in the scene. An example scene file is:
+
+```json
+{
+    "spheres": [
+        {
+            "center": [0, 0.1, -1],
+            "radius": 0.5,
+            "material": {"type": "lambertian", "albedo": [1, 0, 0]}
+        },
+        {
+            "center": [0, -100.5, -1],
+            "radius": 100,
+            "material": {"type": "lambertian", "albedo": [0.1, 1, 0.1]}
+        }
+    ]
+}
+```
+
+Which produces the following render:
+
+![Best render](renders/example-json.png)
 
 # Features
 
