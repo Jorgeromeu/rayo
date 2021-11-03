@@ -51,11 +51,11 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32, max_depth:
 struct CliOptions {
     img_x: u32,
     img_y: u32,
-    aspect_ratio: f64,
     max_depth: u32,
     num_samples: u32,
     output_file: String,
-    scene_file: String
+    scene_file: String,
+    silent: bool
 }
 
 fn read_cli() -> CliOptions {
@@ -74,6 +74,14 @@ fn read_cli() -> CliOptions {
         .version("0.1")
         .about("render beautiful images")
         .author("Jorge Romeu. <jorge.romeu.huidobro@gmail.com>")
+
+        // silent flag
+        .arg(clap::Arg::with_name("silent")
+            .short("s")
+            .long("silent")
+            .required(false)
+            .takes_value(false)
+            .help("If set, do not print progressbar or render duration"))
 
         // output file
         .arg(clap::Arg::with_name("output-file")
@@ -158,15 +166,18 @@ fn read_cli() -> CliOptions {
 
     // num samples
     let num_samples: u32 = matches.value_of("num-samples").unwrap_or_default().parse().unwrap();
+    
+    // silent
+    let silent: bool = matches.is_present("silent");
 
     CliOptions {
         output_file,
         scene_file,
         img_x,
         img_y,
-        aspect_ratio,
         max_depth,
-        num_samples
+        num_samples,
+        silent
     }
 }
 
@@ -221,7 +232,6 @@ fn main() {
 
     // finish progressbar
     bar.finish();
-
     println!("rendering took: {} seconds", elapsed.as_secs());
 
     // write image
