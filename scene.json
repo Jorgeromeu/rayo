@@ -1,0 +1,14 @@
+{
+    "spheres": [
+        {
+            "center": [0, 0.1, -1],
+            "radius": 0.5,
+            "material": {"type": "lambertian", "albedo": [1, 0, 0]}
+        },
+        {
+            "center": [0, -100.5, -1],
+            "radius": 100,
+            "material": {"type": "lambertian", "albedo": [0.1, 1, 0.1]}
+        }
+    ]
+}

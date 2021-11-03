@@ -1,7 +1,3 @@
-use std::panic;
-
-use json::JsonValue;
-
 use crate::ray::Ray;
 use crate::vec::Vec3;
 use crate::material::Material;

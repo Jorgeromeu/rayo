@@ -136,5 +136,6 @@ mod test {
     fn test_parse_scene() {
         let parsed = json::parse(r#"{ "spheres": [{"center":[0,0,0], "radius": 0.5, "material": {"type":"lambertian", "albedo":[1, 0, 0]}}] }"#).unwrap();
         let scene = Scene::parse_json(&parsed);
+        let a = 1;
     }
 }

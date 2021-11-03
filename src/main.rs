@@ -1,6 +1,5 @@
 use std::{fs, time};
 use image::{ImageBuffer, Rgb, RgbImage};
-use material::Material;
 use rayon;
 use intersection::Hittable;
 use parsing::ParseJson;
@@ -47,34 +46,6 @@ fn ray_color(ray: &ray::Ray, scene: &intersection::Scene, depth: u32, max_depth:
         },
         None => Color::sky(ray)
     }
-}
-
-fn construct_scene() -> intersection::Scene {
-    // main sphere
-    let sphere = intersection::Sphere {
-        center: Vec3::new(-0.5, 0.0, -1.0),
-        radius: 0.4,
-        material: Material::Lambertian {albedo: Color::new(0.8, 0.1, 0.1)}
-    };
-    
-    let metalic = intersection::Sphere {
-        center: Vec3::new(0.5, 0.0, -1.0),
-        radius: 0.4,
-        material: Material::Metal {albedo: Color::new(0.9, 0.9, 0.9), fuzz: 0.5}
-    };
-
-    let floor = intersection::Sphere {
-        center: Vec3::new(0.0, -100.5, -1.0),
-        radius: 100.0,
-        material: Material::Lambertian {albedo: Color::new(0.1, 0.8, 0.1)}
-    };
-
-    // add spheres
-    let mut scene = intersection::Scene::empty();
-    scene.spheres.push(sphere);
-    scene.spheres.push(metalic);
-    scene.spheres.push(floor);
-    scene
 }
 
 struct CliOptions {
@@ -205,7 +176,7 @@ fn main() {
     let opts = read_cli();
 
     // Construct Camera
-    let camera = camera::Camera::new(Vec3::zero(), 1.0, opts.aspect_ratio, 2.0);
+    let camera = camera::Camera::new(Vec3::zero(), 80.0, 1.0, opts.aspect_ratio);
 
     // Construct Scene
     let scene_text = fs::read_to_string(&opts.scene_file).unwrap();
