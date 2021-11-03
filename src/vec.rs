@@ -68,7 +68,6 @@ impl ops::Neg for Vec3 {
     }
 }
 
-
 impl ops::AddAssign<Vec3> for Vec3 {
     fn add_assign(&mut self, rhs: Vec3) {
         self.x += rhs.x;
@@ -76,7 +75,6 @@ impl ops::AddAssign<Vec3> for Vec3 {
         self.z += rhs.z;
     }    
 }
-
 
 impl ops::MulAssign<f64> for Vec3 {
     fn mul_assign(&mut self, rhs: f64) {
@@ -147,5 +145,13 @@ impl Vec3 {
     pub fn normalize(&mut self) {
         let norm = self.norm();
         *self /= norm;
+    }
+
+    pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
+        Vec3 {
+            x: u.y * v.z - u.z * v.y,
+            y: u.z * v.x - u.x * v.z,
+            z: u.x * v.y - u.y * v.x
+        }
     }
 }

@@ -176,7 +176,14 @@ fn main() {
     let opts = read_cli();
 
     // Construct Camera
-    let camera = camera::Camera::new(Vec3::zero(), 80.0, 1.0, opts.aspect_ratio);
+    let camera = camera::Camera::new(
+        Vec3::new(-2.0, 2.0, 1.0),
+        Vec3::zero(),
+        Vec3::new(0.0, 1.0, 0.0),
+        80.0,
+        1.0,
+        opts.aspect_ratio
+    );
 
     // Construct Scene
     let scene_text = fs::read_to_string(&opts.scene_file).unwrap();
