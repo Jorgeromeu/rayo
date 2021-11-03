@@ -59,7 +59,7 @@ Which produces the following render:
 Many features are yet to be implemented
 
 - [x] Nice CLI
-- [ ] Reading scenes from json or some other similar format
+- [x] Reading scenes from json or some other similar format
 - [ ] Support for OBJ files for meshes
 
 ## Shapes
