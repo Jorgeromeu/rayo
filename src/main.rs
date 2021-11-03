@@ -175,20 +175,10 @@ fn main() {
     // read CLI args
     let opts = read_cli();
 
-    // Construct Camera
-    let camera = camera::Camera::new(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::zero(),
-        Vec3::new(0.0, 1.0, 0.0),
-        80.0,
-        1.0,
-        opts.aspect_ratio
-    );
-
     // Construct Scene
     let scene_text = fs::read_to_string(&opts.scene_file).unwrap();
     let parsed_text = json::parse(&scene_text).unwrap();
-    let scene = Scene::parse_json(&parsed_text);
+    let (scene, camera) = Scene::parse_json(&parsed_text);
 
     // Initialize image
     let mut img: RgbImage = ImageBuffer::new(opts.img_x, opts.img_y);

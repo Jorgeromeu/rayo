@@ -1,6 +1,7 @@
 use std::panic;
 
 use json::JsonValue;
+use crate::camera::Camera;
 use crate::color::Color;
 use crate::intersection::Sphere;
 use crate::intersection::Scene;
@@ -11,8 +12,8 @@ pub trait ParseJson<T> {
     fn parse_json(json_value: &JsonValue) -> T;
 }
 
-impl ParseJson<Scene> for Scene {
-    fn parse_json(json_value: &JsonValue) -> Scene {
+impl ParseJson<(Scene, Camera)> for Scene {
+    fn parse_json(json_value: &JsonValue) -> (Scene, Camera) {
 
         let mut scene = Scene::empty();
 
@@ -32,7 +33,33 @@ impl ParseJson<Scene> for Scene {
                     _ => panic!()
                 }
 
-                scene 
+                let cam_json = &obj["camera"];
+
+                let camera = match cam_json {
+                    JsonValue::Object(obj) => {
+                        
+                        let lookfrom = Vec3::parse_json(&obj["lookfrom"]);
+                        let lookat = Vec3::parse_json(&obj["lookat"]);
+                        let vup = Vec3::parse_json(&obj["vup"]);
+                        let vfov = &obj["vfov"].as_f64().unwrap();
+                        let focal_length = &obj["focal-length"].as_f64().unwrap();
+                        let aspect_ratio_arr = &obj["aspect-ratio"];
+
+                        let aspect_ratio = match aspect_ratio_arr {
+                            JsonValue::Array(arr) => {
+                                let num = arr[0].as_f64().unwrap();
+                                let denom = arr[1].as_f64().unwrap();
+                                num/denom
+                            },
+                            _ => panic!()
+                        };
+
+                        Camera::new(lookfrom, lookat, vup, *vfov, *focal_length, aspect_ratio)
+                    },
+                    _ => panic!()
+                };
+
+                (scene, camera) 
             },
             _ => todo!("Scene should be an object"),
         }
@@ -134,8 +161,31 @@ mod test {
     
     #[test]
     fn test_parse_scene() {
-        let parsed = json::parse(r#"{ "spheres": [{"center":[0,0,0], "radius": 0.5, "material": {"type":"lambertian", "albedo":[1, 0, 0]}}] }"#).unwrap();
-        let scene = Scene::parse_json(&parsed);
+        let parsed = json::parse(r#"{
+    "camera": {
+        "lookfrom": [-2, 2, 1],
+        "lookat": [0, 0, 0],
+        "vup": [0, 1, 0],
+        "vfov": 90,
+        "focal-length": 1.0,
+        "aspect-ratio": [16, 9]
+    },
+
+    "spheres": [
+        {
+            "center": [0, 0.1, -1],
+            "radius": 0.5,
+            "material": {"type": "lambertian", "albedo": [1, 0, 0]}
+        },
+        {
+            "center": [0, -100.5, -1],
+            "radius": 100,
+            "material": {"type": "lambertian", "albedo": [0.1, 1, 0.1]}
+        }
+    ]
+}
+"#).unwrap();
+        let (scene, cam) = Scene::parse_json(&parsed);
         let a = 1;
     }
 }
