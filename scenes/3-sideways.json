@@ -3,9 +3,9 @@
         "lookfrom": [3, 3, 2],
         "lookat": [0, 0, -1],
         "vup": [0, 1, 0],
-        "vfov": 40,
+        "vfov": 20,
         "focal-length": 5.19,
-        "aperture": 0.0
+        "aperture": 0.1
     },
 
     "spheres": [
@@ -17,12 +17,7 @@
         {
             "center": [0, 0, -1],
             "radius": 0.45,
-            "material": {"type": "dielectric", "ior": 2}
-        },
-        {
-            "center": [0, 0, -1],
-            "radius": 0.1,
-            "material": {"type": "metal", "albedo": [1, 1, 1], "fuzz": 0.1}
+            "material": {"type": "lambertian", "albedo": [1, 0, 0]}
         },
         {
             "center": [1, 0, -1],

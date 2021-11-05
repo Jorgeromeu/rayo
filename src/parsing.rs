@@ -133,6 +133,10 @@ impl ParseJson<Material> for Material {
                         let fuzz = obj["fuzz"].as_f64().unwrap_or_else(|| { panic!("Fuzz should be a float") });
                         Material::Metal {albedo, fuzz}
                     },
+                    "dielectric" => {
+                        let ior = obj["ior"].as_f64().unwrap();
+                        Material::Dielectric {ior}
+                    }
                     _ => panic!("Unknown material type")
                 }
             },
