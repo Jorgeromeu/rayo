@@ -113,6 +113,14 @@ impl Vec3 {
         Vec3 {x: rx, y: ry, z: rz}
     }
 
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        let x: f64 = rng.gen_range(-1.0..1.0);
+        let y: f64 = rng.gen_range(-1.0..1.0);
+
+        (Vec3 {x, y, z: 0.0}).normalized()
+    }
+
     pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
         v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
     }

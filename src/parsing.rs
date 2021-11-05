@@ -12,57 +12,50 @@ pub trait ParseJson<T> {
     fn parse_json(json_value: &JsonValue) -> T;
 }
 
-impl ParseJson<(Scene, Camera)> for Scene {
-    fn parse_json(json_value: &JsonValue) -> (Scene, Camera) {
+pub fn parse_scene(scene_json: String, aspect_ratio: f64) -> (Scene, Camera) {
+   
+    // parse the JSON
+    let parsed = json::parse(&scene_json).unwrap();
 
-        let mut scene = Scene::empty();
+    let mut scene = Scene::empty();
 
-        match json_value {
-            JsonValue::Object(obj) => {
-                let spheres = &obj["spheres"];
+    match parsed {
+        JsonValue::Object(obj) => {
+            let spheres = &obj["spheres"];
 
-                match spheres {
-                    JsonValue::Array(spheres_vec) => {
-    
-                        for sphere_json in spheres_vec {
-                            let sphere = Sphere::parse_json(sphere_json);
-                            scene.spheres.push(sphere);
-                        }
+            match spheres {
+                JsonValue::Array(spheres_vec) => {
 
-                    },
-                    _ => panic!()
+                    for sphere_json in spheres_vec {
+                        let sphere = Sphere::parse_json(sphere_json);
+                        scene.spheres.push(sphere);
+                    }
+
                 }
+                _ => panic!()
+            }
 
-                let cam_json = &obj["camera"];
+            let cam_json = &obj["camera"];
 
-                let camera = match cam_json {
-                    JsonValue::Object(obj) => {
-                        
-                        let lookfrom = Vec3::parse_json(&obj["lookfrom"]);
-                        let lookat = Vec3::parse_json(&obj["lookat"]);
-                        let vup = Vec3::parse_json(&obj["vup"]);
-                        let vfov = &obj["vfov"].as_f64().unwrap();
-                        let focal_length = &obj["focal-length"].as_f64().unwrap();
-                        let aspect_ratio_arr = &obj["aspect-ratio"];
+            let camera = match cam_json {
+                JsonValue::Object(obj) => {
+                    
+                    let lookfrom = Vec3::parse_json(&obj["lookfrom"]);
+                    let lookat = Vec3::parse_json(&obj["lookat"]);
+                    let vup = Vec3::parse_json(&obj["vup"]);
+                    let vfov = &obj["vfov"].as_f64().unwrap();
+                    let focal_length = &obj["focal-length"].as_f64().unwrap();
+                    let aperture = &obj["aperture"].as_f64().unwrap();
+                    let aspect_ratio_arr = &obj["aspect-ratio"];
 
-                        let aspect_ratio = match aspect_ratio_arr {
-                            JsonValue::Array(arr) => {
-                                let num = arr[0].as_f64().unwrap();
-                                let denom = arr[1].as_f64().unwrap();
-                                num/denom
-                            },
-                            _ => panic!()
-                        };
+                    Camera::new(lookfrom, lookat, vup, *vfov, *focal_length, *aperture, aspect_ratio)
+                },
+                _ => panic!()
+            };
 
-                        Camera::new(lookfrom, lookat, vup, *vfov, *focal_length, aspect_ratio)
-                    },
-                    _ => panic!()
-                };
-
-                (scene, camera) 
-            },
-            _ => todo!("Scene should be an object"),
-        }
+            (scene, camera) 
+        },
+        _ => panic!("Scene should be an object"),
     }
 }
 

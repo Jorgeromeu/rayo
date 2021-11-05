@@ -2,11 +2,9 @@ use std::{fs, time};
 use image::{ImageBuffer, Rgb, RgbImage};
 use rayon;
 use intersection::Hittable;
-use parsing::ParseJson;
 use rand;
 use rayon::iter::*;
 use indicatif::ProgressBar;
-use crate::intersection::Scene;
 use crate::vec::Vec3;
 use crate::color::Color;
 use clap;
@@ -55,7 +53,8 @@ struct CliOptions {
     num_samples: u32,
     output_file: String,
     scene_file: String,
-    silent: bool
+    silent: bool,
+    aspect_ratio: f64
 }
 
 fn read_cli() -> CliOptions {
@@ -177,7 +176,8 @@ fn read_cli() -> CliOptions {
         img_y,
         max_depth,
         num_samples,
-        silent
+        silent,
+        aspect_ratio
     }
 }
 
@@ -187,9 +187,8 @@ fn main() {
     let opts = read_cli();
 
     // Construct Scene
-    let scene_text = fs::read_to_string(&opts.scene_file).unwrap();
-    let parsed_text = json::parse(&scene_text).unwrap();
-    let (scene, camera) = Scene::parse_json(&parsed_text);
+    let scene_json = fs::read_to_string(&opts.scene_file).unwrap();
+    let (scene, camera) = parsing::parse_scene(scene_json, opts.aspect_ratio);
 
     // Initialize image
     let mut img: RgbImage = ImageBuffer::new(opts.img_x, opts.img_y);

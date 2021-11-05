@@ -1,3 +1,4 @@
+use crate::color::Color;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 use crate::material::Material;
@@ -55,16 +56,34 @@ pub trait Hittable {
 
 impl Hittable for Scene {
     fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitInfo> {
+
+        let mut is_hit = false;
+        let mut closest_so_far = HitInfo {
+            normal: Vec3::zero(),
+            t: t_max,
+            point: Vec3::zero(),
+            front_face: false,
+            material: Material::Lambertian { albedo: Color::black() }
+        };
+
         for sphere in &(self.spheres) {
             let sphere_hit = sphere.intersect(ray, t_min.clone(), t_max.clone());
 
             // if we hit the sphere return its hit info
-            match sphere_hit {
-                Some(_hit) => return sphere_hit,
-                None => (),
+            if let Some(hit) = sphere_hit {
+                is_hit = true;
+                if hit.t < closest_so_far.t {
+                    closest_so_far = hit;
+                }
             }
+
         }
-        None
+
+        if is_hit {
+            Some(closest_so_far)
+        } else {
+            None
+        }
     }
 }
 
