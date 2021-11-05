@@ -36,8 +36,8 @@ impl Camera {
         let v = Vec3::cross(&w, &u);
 
         let origin = lookfrom;
-        let horizontal = viewport_width * u;
-        let vertical = viewport_height * v;
+        let horizontal = focal_length * viewport_width * u;
+        let vertical = focal_length * viewport_height * v;
         let lower_left_corner = origin - horizontal/2.0 - vertical/2.0 - focal_length*w;
 
         Camera {
@@ -54,6 +54,12 @@ impl Camera {
         }
     }
 
+    pub fn generate_ray_nodof(&self, s: f64, t: f64) -> Ray {
+        let origin = self.origin;
+        let dir = self.lower_left_corner + s*self.horizontal + t * self.vertical - origin;
+        Ray { t: 0.0, origin, dir }
+    }
+
     pub fn generate_ray(&self, s: f64, t: f64) -> Ray {
 
         let rd = (self.aperture / 2.0) * Vec3::random_in_unit_disk();
@@ -62,7 +68,7 @@ impl Camera {
         Ray {
             t: 0.0,
             origin: self.origin + offset,
-            dir: self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin,
+            dir: self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
         }
     }
 }

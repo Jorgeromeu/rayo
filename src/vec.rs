@@ -1,4 +1,4 @@
-use std::ops;
+use std::{f64::consts::PI, ops};
 
 use rand::Rng;
 
@@ -115,10 +115,14 @@ impl Vec3 {
 
     pub fn random_in_unit_disk() -> Vec3 {
         let mut rng = rand::thread_rng();
-        let x: f64 = rng.gen_range(-1.0..1.0);
-        let y: f64 = rng.gen_range(-1.0..1.0);
+        
+        let a = rng.gen::<f64>() * 2.0 * PI;
+        let r = rng.gen::<f64>().sqrt();
 
-        (Vec3 {x, y, z: 0.0}).normalized()
+        let x = r * a.cos();
+        let y = r * a.sin();
+
+        Vec3 {x, y, z: 0.0}
     }
 
     pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {

@@ -3,9 +3,9 @@
         "lookfrom": [3, 3, 2],
         "lookat": [0, 0, -1],
         "vup": [0, 1, 0],
-        "vfov": 90,
+        "vfov": 20,
         "focal-length": 5.19,
-        "aperture": 0
+        "aperture": 0.1
     },
 
     "spheres": [
@@ -22,7 +22,7 @@
         {
             "center": [1, 0, -1],
             "radius": 0.45,
-            "material": {"type": "metal", "albedo": [0.9, 0.9, 0.9], "fuzz": 0.9}
+            "material": {"type": "metal", "albedo": [0.9, 0.9, 0.9], "fuzz": 0.7}
         },
         {
             "center": [0, -100.5, -1],

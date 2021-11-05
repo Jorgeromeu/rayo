@@ -46,8 +46,7 @@ pub fn parse_scene(scene_json: String, aspect_ratio: f64) -> (Scene, Camera) {
                     let vfov = &obj["vfov"].as_f64().unwrap();
                     let focal_length = &obj["focal-length"].as_f64().unwrap();
                     let aperture = &obj["aperture"].as_f64().unwrap();
-                    let aspect_ratio_arr = &obj["aspect-ratio"];
-
+                    
                     Camera::new(lookfrom, lookat, vup, *vfov, *focal_length, *aperture, aspect_ratio)
                 },
                 _ => panic!()
@@ -152,33 +151,4 @@ mod test {
         assert!(vec.is_close(&Vec3::new(1.0, 2.0, 3.5)));
     }
     
-    #[test]
-    fn test_parse_scene() {
-        let parsed = json::parse(r#"{
-    "camera": {
-        "lookfrom": [-2, 2, 1],
-        "lookat": [0, 0, 0],
-        "vup": [0, 1, 0],
-        "vfov": 90,
-        "focal-length": 1.0,
-        "aspect-ratio": [16, 9]
-    },
-
-    "spheres": [
-        {
-            "center": [0, 0.1, -1],
-            "radius": 0.5,
-            "material": {"type": "lambertian", "albedo": [1, 0, 0]}
-        },
-        {
-            "center": [0, -100.5, -1],
-            "radius": 100,
-            "material": {"type": "lambertian", "albedo": [0.1, 1, 0.1]}
-        }
-    ]
-}
-"#).unwrap();
-        let (scene, cam) = Scene::parse_json(&parsed);
-        let a = 1;
-    }
 }
