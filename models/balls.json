@@ -5,7 +5,7 @@
         "vup": [0, 1, 0],
         "vfov": 25,
         "focal-length": 5.19,
-        "aperture": 0.4 
+        "aperture": 0.0 
     },
 
     "spheres": [
@@ -17,7 +17,7 @@
 
         {
             "center": [0, 0, -1],
-            "radius": 0.45,
+            "radius": 0.4,
             "material": {"type": "dielectric", "ior": 2}
         },
 

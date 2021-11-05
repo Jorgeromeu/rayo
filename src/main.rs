@@ -1,13 +1,11 @@
 use crate::color::Color;
 use crate::ray::Ray;
-use clap;
 use image::{ImageBuffer, Rgb, RgbImage};
 use indicatif::ProgressBar;
 use intersection::{scene::Scene, Hittable};
 use rand;
 use rayon;
 use rayon::iter::*;
-use regex;
 use std::{fs, time};
 
 mod camera;
@@ -56,13 +54,14 @@ fn main() {
 
     let mut pixels: Vec<(u32, u32, &mut Rgb<u8>)> = img.enumerate_pixels_mut().collect();
 
-    // Initialize progressbar
+    // Initialize progressbar with number of pixels
     let bar = ProgressBar::new((opts.img_x * opts.img_y) as u64);
 
     let start_time = time::Instant::now();
 
     // parallelized ray tracing loop
     pixels.par_iter_mut().for_each(|tup| {
+       
         let x = tup.0;
         let y = opts.img_y - 1 - tup.1;
 
@@ -92,6 +91,6 @@ fn main() {
     bar.finish();
     println!("rendering took: {} seconds", elapsed.as_secs());
 
-    // write image
+    // write image to file
     img.save(opts.output_file).unwrap();
 }
