@@ -2,11 +2,9 @@
 
 A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 
-# Spotlight
+# Render
 
-Here is a gallery of some of the best renders:
-
-![Best render](renders/rednfuzzy.png)
+![Best render](renders/blurryballs.png)
 
 # Usage
 
@@ -51,14 +49,14 @@ Many features are yet to be implemented
 
 - [x] Lambertian diffuse materials
 - [x] Metalic materials
-- [ ] Glass and Dielectrics
+- [x] Glass/Dielectrics
 
 ## Effects
 
 - [x] Anti aliasing
-- [ ] Depth of field
+- [x] Depth of field
 - [ ] Motion blur 
-- [ ] Adjustable camera positions
+- [x] Adjustable camera positions
 
 ## Efficiency enhancements
 
