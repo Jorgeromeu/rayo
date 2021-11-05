@@ -9,6 +9,8 @@
     },
 
     "spheres": [
+
+        // lamba
         {
             "center": [-1, 0, -1],
             "radius": 0.4,

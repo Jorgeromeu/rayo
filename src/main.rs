@@ -3,8 +3,6 @@ use crate::ray::Ray;
 use image::{ImageBuffer, Rgb, RgbImage};
 use indicatif::ProgressBar;
 use intersection::{scene::Scene, Hittable};
-use rand;
-use rayon;
 use rayon::iter::*;
 use std::{fs, time};
 

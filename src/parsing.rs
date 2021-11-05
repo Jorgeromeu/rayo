@@ -1,4 +1,6 @@
+use std::io::Read;
 use std::panic;
+use json_comments::StripComments;
 
 use json::JsonValue;
 use crate::camera::Camera;
@@ -13,9 +15,13 @@ pub trait ParseJson<T> {
 }
 
 pub fn parse_scene(scene_json: String, aspect_ratio: f64) -> (Scene, Camera) {
-   
+
+    // strip comments
+    let mut stripped = String::new();
+    StripComments::new(scene_json.as_bytes()).read_to_string(&mut stripped).unwrap();
+
     // parse the JSON
-    let parsed = json::parse(&scene_json).unwrap();
+    let parsed = json::parse(&stripped).unwrap();
 
     let mut scene = Scene::empty();
 

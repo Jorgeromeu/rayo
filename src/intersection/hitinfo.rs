@@ -18,7 +18,7 @@ impl HitInfo {
             point: hit_ray.at(t),
             t: t.clone(),
             normal: outward_normal,
-            material: material
+            material
         };
 
         hit.set_face_normal(&hit_ray, outward_normal.clone());
