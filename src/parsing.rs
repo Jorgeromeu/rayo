@@ -3,8 +3,8 @@ use std::panic;
 use json::JsonValue;
 use crate::camera::Camera;
 use crate::color::Color;
-use crate::intersection::Sphere;
-use crate::intersection::Scene;
+use crate::intersection::sphere::Sphere;
+use crate::intersection::scene::Scene;
 use crate::material::Material;
 use crate::vec::Vec3;
 

@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::intersection::HitInfo;
+use crate::intersection::hitinfo::HitInfo;
 use crate::ray::Ray;
 use crate::vec::Vec3;
 
