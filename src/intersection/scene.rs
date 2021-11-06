@@ -43,5 +43,3 @@ impl Hittable for Scene {
         }
     }
 }
-
-

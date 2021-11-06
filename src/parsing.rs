@@ -141,7 +141,8 @@ impl ParseJson<Material> for Material {
                     },
                     "dielectric" => {
                         let ior = obj["ior"].as_f64().unwrap();
-                        Material::Dielectric {ior}
+                        let color = Color::parse_json(&obj["color"]);
+                        Material::Dielectric {ior, color}
                     }
                     _ => panic!("Unknown material type")
                 }

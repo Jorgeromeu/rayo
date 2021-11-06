@@ -7,7 +7,7 @@ use crate::vec::Vec3;
 pub enum Material {
     Lambertian { albedo: Color },
     Metal { albedo: Color, fuzz: f64 },
-    Dielectric { ior: f64 }
+    Dielectric { ior: f64, color: Color }
 }
 
 impl Material {
@@ -39,7 +39,7 @@ impl Material {
 
                 (attenuation, scattered_ray, should_scatter)
             }
-            Material::Dielectric { ior } => {
+            Material::Dielectric { ior, color} => {
                 let refraction_ratio = if hit.front_face { 1.0/ior } else { ior };
                 let unit_dir = ray_in.dir.normalized();
 
@@ -52,14 +52,13 @@ impl Material {
 
                 let scatter_dir = if cannot_refract || reflectance_high {
                     reflect(&unit_dir, &hit.normal)
-                    // refract(&unit_dir, &hit.normal, refraction_ratio)
                 } else {
                     refract(&unit_dir, &hit.normal, refraction_ratio)
                 };
 
                 let scattered = Ray::new(hit.point, scatter_dir);
 
-                (Color::white(), scattered, true) 
+                (color, scattered, true) 
             },
         }
     }

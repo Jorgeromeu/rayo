@@ -61,11 +61,12 @@ Many features are yet to be implemented
 ## Efficiency enhancements
 
 - [x] parallelize on CPU
-- [ ] parallelize on GPU
+- [ ] parallelize on GPU (cuda)
 - [ ] bounding volumes
 
 ## Possible things but unlikely
 
 - make an opengl viewer which allows you to set up scene and then switch to raytraced mode
+- have this viewer display the render after each sample
 - compile this to webgl and wasm and run in browser?
 
