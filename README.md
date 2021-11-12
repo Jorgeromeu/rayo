@@ -57,6 +57,8 @@ Many features are yet to be implemented
 - [x] Depth of field
 - [ ] Motion blur 
 - [x] Adjustable camera positions
+- [x] Textures (checkerboard)
+- [ ] Textures (reading from image)
 
 ## Efficiency enhancements
 
