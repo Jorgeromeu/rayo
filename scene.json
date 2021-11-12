@@ -1,55 +1,27 @@
 {
     "camera": {
-        "lookfrom": [3, 3.7, 2],
-        "lookat": [0, 0, -1],
+        "lookfrom": [5, 3, 5],
+        "lookat": [0, 1.5, -1],
         "vup": [0, 1, 0],
-        "vfov": 30,
+        "vfov": 35,
         "focal-length": 5.19,
         "aperture": 0.0
     },
 
     "spheres": [
 
-        // mirrorball 
-        {
-            "center": [-1, 0, -1],
-            "radius": 0.4,
-            "material": {"type": "metal", "albedo": [0.9, 0.9, 0.9], "fuzz": 0.4}
-        },
-
         // glass ball
         {
-            "center": [0, 0.05, -1],
-            "radius": 0.45,
-            "material": {"type": "dielectric", "color": [0.9, 0.9, 0.9], "ior": 2}
-        },
-
-        // fuzzy ball
-        {
-            "center": [1, 0, -1],
-            "radius": 0.4,
-            "material": {"type": "metal", "albedo": [0.7, 0.7, 0.7], "fuzz": 0.1}
-        },
-
-        // red mirror ball
-        {
-            "center": [0, 0, -2],
-            "radius": 0.4,
-            "material": {"type": "metal", "albedo": [0.9, 0.1, 0.1], "fuzz": 0.1}
-        },
-
-        // blueball
-        {
-            "center": [0, 0, 0],
-            "radius": 0.4,
-            "material": {"type": "lambertian", "albedo": [0.1, 0.1, 0.9]}
+            "center": [0, 1.5, -1],
+            "radius": 1,
+            "material": {"type": "metal", "albedo": [0.8, 0.8, 0.8], "fuzz": 0.01}
         },
 
         // floor
         {
-            "center": [0, -100.5, -1],
-            "radius": 100,
-            "material": {"type": "checker", "even": [0.2, 0.6, 0.1], "odd": [1, 1, 1]}
+            "center": [0, -150.5, -1],
+            "radius": 150,
+            "material": {"type": "checker", "even": [0.4, 0.1, 0.1], "odd": [1, 1, 1]}
         }
     ]
 }

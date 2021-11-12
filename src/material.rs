@@ -74,7 +74,9 @@ impl Material {
 
                 let scattered_ray = Ray::new(hit.point, scatter_dir);
 
-                let sines = f64::sin(10.0 * hit.point.x) * f64::sin(10.0 * hit.point.y) * f64::sin(10.0 * hit.point.z);
+                let size = 4.0;
+
+                let sines = f64::sin(size * hit.point.x) * f64::sin(size * hit.point.y) * f64::sin(size * hit.point.z);
                 let attenuation = if sines < 0.0 {odd} else {even};
 
                 (attenuation, scattered_ray, true)
