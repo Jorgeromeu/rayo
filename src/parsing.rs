@@ -144,6 +144,11 @@ impl ParseJson<Material> for Material {
                         let color = Color::parse_json(&obj["color"]);
                         Material::Dielectric {ior, color}
                     }
+                    "checker" => {
+                        let even = Color::parse_json(&obj["even"]);
+                        let odd = Color::parse_json(&obj["odd"]);
+                        Material::Checkered { even, odd }
+                    }
                     _ => panic!("Unknown material type")
                 }
             },

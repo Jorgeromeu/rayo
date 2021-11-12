@@ -1,3 +1,5 @@
+use image::buffer::EnumeratePixels;
+
 use crate::color::Color;
 use crate::intersection::hitinfo::HitInfo;
 use crate::ray::Ray;
@@ -7,7 +9,8 @@ use crate::vec::Vec3;
 pub enum Material {
     Lambertian { albedo: Color },
     Metal { albedo: Color, fuzz: f64 },
-    Dielectric { ior: f64, color: Color }
+    Dielectric { ior: f64, color: Color },
+    Checkered { odd: Color, even: Color}
 }
 
 impl Material {
@@ -59,6 +62,22 @@ impl Material {
                 let scattered = Ray::new(hit.point, scatter_dir);
 
                 (color, scattered, true) 
+            },
+            Material::Checkered { odd, even } => {
+
+                let mut scatter_dir = hit.normal + Vec3::random_unit();
+
+                // catch degenerate scatter direction
+                if scatter_dir.near_zero() {
+                    scatter_dir = hit.normal;
+                }
+
+                let scattered_ray = Ray::new(hit.point, scatter_dir);
+
+                let sines = f64::sin(10.0 * hit.point.x) * f64::sin(10.0 * hit.point.y) * f64::sin(10.0 * hit.point.z);
+                let attenuation = if sines < 0.0 {odd} else {even};
+
+                (attenuation, scattered_ray, true)
             },
         }
     }

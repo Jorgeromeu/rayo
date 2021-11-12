@@ -4,7 +4,7 @@ A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray
 
 # Render
 
-![Best render](renders/blurryballs.png)
+![Best render](renders/checkered.png)
 
 # Usage
 

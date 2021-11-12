@@ -1,11 +1,11 @@
 {
     "camera": {
-        "lookfrom": [3, 3, 2],
+        "lookfrom": [3, 3.7, 2],
         "lookat": [0, 0, -1],
         "vup": [0, 1, 0],
-        "vfov": 25,
+        "vfov": 30,
         "focal-length": 5.19,
-        "aperture": 0.5
+        "aperture": 0.0
     },
 
     "spheres": [
@@ -14,7 +14,7 @@
         {
             "center": [-1, 0, -1],
             "radius": 0.4,
-            "material": {"type": "metal", "albedo": [0.9, 0.9, 0.9], "fuzz": 0.1}
+            "material": {"type": "metal", "albedo": [0.9, 0.9, 0.9], "fuzz": 0.4}
         },
 
         // glass ball
@@ -28,7 +28,7 @@
         {
             "center": [1, 0, -1],
             "radius": 0.4,
-            "material": {"type": "metal", "albedo": [0.7, 0.7, 0.7], "fuzz": 0.8}
+            "material": {"type": "metal", "albedo": [0.7, 0.7, 0.7], "fuzz": 0.1}
         },
 
         // red mirror ball
@@ -49,7 +49,7 @@
         {
             "center": [0, -100.5, -1],
             "radius": 100,
-            "material": {"type": "lambertian", "albedo": [0.2, 0.6, 0.1]}
+            "material": {"type": "checker", "even": [0.2, 0.6, 0.1], "odd": [1, 1, 1]}
         }
     ]
 }
