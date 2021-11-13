@@ -1,0 +1,20 @@
+{
+    "camera": {
+        "lookfrom": [3, 3, 3],
+        "lookat": [0, 0, -1],
+        "vup": [0, 1, 0],
+        "vfov": 30,
+        "focal-length": 5.19,
+        "aperture": 0.0
+    },
+
+    "spheres": [
+
+        // mirrorball 
+        {
+            "center": [0, 0, -1],
+            "radius": 1.3,
+            "material": {"type": "checker", "even": [0.9, 0.1, 0.1], "odd": [0.8,0.8,0.9], "size": 10}
+        }
+    ]
+}
