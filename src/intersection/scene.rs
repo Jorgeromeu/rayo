@@ -1,4 +1,4 @@
-use crate::{color::Color, material::Material, ray::Ray, vec::Vec3};
+use crate::{color::Color, material::Material, ray::Ray, texture::Texture, vec::Vec3};
 use super::{Hittable, hitinfo::HitInfo, sphere::Sphere};
 
 pub struct Scene {
@@ -20,7 +20,7 @@ impl Hittable for Scene {
             t: t_max,
             point: Vec3::zero(),
             front_face: false,
-            material: Material::Lambertian { albedo: Color::black() }
+            material: Material::Lambertian { albedo: Texture::new_constant(0.0, 0.0, 0.0)}
         };
 
         for sphere in &(self.spheres) {

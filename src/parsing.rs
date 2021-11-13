@@ -8,6 +8,7 @@ use crate::color::Color;
 use crate::intersection::sphere::Sphere;
 use crate::intersection::scene::Scene;
 use crate::material::Material;
+use crate::texture::Texture;
 use crate::vec::Vec3;
 
 pub trait ParseJson<T> {
@@ -131,28 +132,44 @@ impl ParseJson<Material> for Material {
 
                 match material_type {
                     "lambertian" => {
-                        let albedo = Color::parse_json(&obj["albedo"]);
+                        let albedo = Texture::parse_json(&obj["albedo"]);
                         Material::Lambertian {albedo}
                     },
                     "metal" => {
-                        let albedo = Color::parse_json(&obj["albedo"]);
+                        let albedo = Texture::parse_json(&obj["albedo"]);
                         let fuzz = obj["fuzz"].as_f64().unwrap_or_else(|| { panic!("Fuzz should be a float") });
                         Material::Metal {albedo, fuzz}
                     },
                     "dielectric" => {
                         let ior = obj["ior"].as_f64().unwrap();
-                        let color = Color::parse_json(&obj["color"]);
+                        let color = Texture::parse_json(&obj["color"]);
                         Material::Dielectric {ior, color}
-                    }
-                    "checker" => {
-                        let even = Color::parse_json(&obj["even"]);
-                        let odd = Color::parse_json(&obj["odd"]);
-                        Material::Checkered { even, odd }
                     }
                     _ => panic!("Unknown material type")
                 }
             },
             _ => todo!()
+        }
+    }
+}
+
+impl ParseJson<Texture> for Texture {
+    fn parse_json(json_value: &JsonValue) -> Texture {
+        match json_value {
+            JsonValue::Object(obj) => {
+                let texture_type = obj["type"].as_str().unwrap();
+                match texture_type {
+                    "checker" => {
+                        let odd = Color::parse_json(&obj["odd"]);
+                        let even = Color::parse_json(&obj["even"]);
+                        let size = obj["size"].as_f64().unwrap();
+                        Texture::Checkered {odd, even, size}
+                    }
+                    _ => todo!()
+                }
+            },
+            JsonValue::Array(_) => Texture::Constant {color: Color::parse_json(json_value)},
+            _ => panic!()
         }
     }
 }

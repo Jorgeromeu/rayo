@@ -12,16 +12,16 @@
 
         // glass ball
         {
-            "center": [0, 1.5, -1],
-            "radius": 1,
-            "material": {"type": "metal", "albedo": [0.8, 0.8, 0.8], "fuzz": 0.01}
+            "center": [0, 2, -1],
+            "radius": 1.5,
+            "material": {"type": "dielectric", "ior": 2, "color": [1, 1, 1]}
         },
 
         // floor
         {
-            "center": [0, -150.5, -1],
-            "radius": 150,
-            "material": {"type": "checker", "even": [0.4, 0.1, 0.1], "odd": [1, 1, 1]}
+            "center": [0, -80, -1],
+            "radius": 80,
+            "material": {"type": "lambertian", "albedo": {"type": "checker", "even": [0, 1, 0], "odd": [0, 0, 1], "size": 10}}
         }
     ]
 }

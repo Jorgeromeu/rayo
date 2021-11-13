@@ -14,6 +14,7 @@ mod parsing;
 mod ray;
 mod vec;
 mod cli;
+mod texture;
 
 fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
     // if we have exceeded the depth limit no more light is gathered

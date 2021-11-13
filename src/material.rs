@@ -1,16 +1,14 @@
-use image::buffer::EnumeratePixels;
-
 use crate::color::Color;
 use crate::intersection::hitinfo::HitInfo;
 use crate::ray::Ray;
+use crate::texture::Texture;
 use crate::vec::Vec3;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Material {
-    Lambertian { albedo: Color },
-    Metal { albedo: Color, fuzz: f64 },
-    Dielectric { ior: f64, color: Color },
-    Checkered { odd: Color, even: Color}
+    Lambertian { albedo: Texture },
+    Metal { albedo: Texture, fuzz: f64 },
+    Dielectric { ior: f64, color: Texture },
 }
 
 impl Material {
@@ -25,7 +23,7 @@ impl Material {
                 }
 
                 let scattered_ray = Ray::new(hit.point, scatter_dir);
-                let attenuation = albedo;
+                let attenuation = albedo.value(hit.point);
                 (attenuation, scattered_ray, true)
             }
             Material::Metal {albedo, fuzz} => {
@@ -36,7 +34,7 @@ impl Material {
                 reflected += fuzz * Vec3::random_unit();
 
                 let scattered_ray = Ray::new(hit.point, reflected);
-                let attenuation = albedo;
+                let attenuation = albedo.value(hit.point);
 
                 let should_scatter = Vec3::dot(&scattered_ray.dir, &hit.normal) > 0.0;
 
@@ -61,26 +59,8 @@ impl Material {
 
                 let scattered = Ray::new(hit.point, scatter_dir);
 
-                (color, scattered, true) 
-            },
-            Material::Checkered { odd, even } => {
-
-                let mut scatter_dir = hit.normal + Vec3::random_unit();
-
-                // catch degenerate scatter direction
-                if scatter_dir.near_zero() {
-                    scatter_dir = hit.normal;
-                }
-
-                let scattered_ray = Ray::new(hit.point, scatter_dir);
-
-                let size = 10.0;
-
-                let sines = f64::sin(size * hit.point.x) * f64::sin(size * hit.point.y) * f64::sin(size * hit.point.z);
-                let attenuation = if sines < 0.0 {odd} else {even};
-
-                (attenuation, scattered_ray, true)
-            },
+                (color.value(hit.point), scattered, true) 
+            }
         }
     }
 }
