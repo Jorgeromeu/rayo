@@ -7,14 +7,14 @@ use rayon::iter::*;
 use std::{fs, time};
 
 mod camera;
+mod cli;
 mod color;
 mod intersection;
 mod material;
 mod parsing;
 mod ray;
-mod vec;
-mod cli;
 mod texture;
+mod vec;
 
 fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
     // if we have exceeded the depth limit no more light is gathered
@@ -22,20 +22,21 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
         return Color::black();
     }
 
+    let t_min = 0.1;
+    let t_max = f64::MAX;
+
     // intersect scene
-    let hit = scene.intersect(ray, 0.1, f64::MAX);
+    match scene.intersect(ray,t_min, t_max) {
 
-    match hit {
-        Some(hit) => {
-            let (attenuation, scattered_ray, should_scatter) = hit.material.scatter(ray, hit);
-
-            if should_scatter {
-                // recurse
+        // if hit, scatter
+        Some(hit) => match hit.material.scatter(ray, hit) {
+            Some((attenuation, scattered_ray)) => {
                 attenuation * ray_color(&scattered_ray, scene, depth + 1, max_depth)
-            } else {
-                Color::black()
             }
-        }
+            None => Color::black(),
+        },
+
+        // if no intersection return sky color
         None => Color::sky(ray),
     }
 }
@@ -60,7 +61,6 @@ fn main() {
 
     // parallelized ray tracing loop
     pixels.par_iter_mut().for_each(|tup| {
-       
         let x = tup.0;
         let y = opts.img_y - 1 - tup.1;
 

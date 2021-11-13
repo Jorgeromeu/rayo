@@ -36,7 +36,8 @@ impl Hittable for Sphere {
         }
         
         let outward_normal = (ray.at(root) - self.center).normalized();
-        let hit = HitInfo::new(root, ray, outward_normal, self.material);
+
+        let hit = HitInfo::new(root, ray, outward_normal, self.material, 0.0, 0.0);
 
         Some(hit)
     }

@@ -12,7 +12,7 @@ pub enum Material {
 }
 
 impl Material {
-    pub fn scatter(self, ray_in: &Ray, hit: HitInfo) -> (Color, Ray, bool) {
+    pub fn scatter(self, ray_in: &Ray, hit: HitInfo) -> Option<(Color, Ray)> {
         match self {
             Material::Lambertian {albedo} => {
                 let mut scatter_dir = hit.normal + Vec3::random_unit();
@@ -24,7 +24,7 @@ impl Material {
 
                 let scattered_ray = Ray::new(hit.point, scatter_dir);
                 let attenuation = albedo.value(hit.point);
-                (attenuation, scattered_ray, true)
+                Some((attenuation, scattered_ray))
             }
             Material::Metal {albedo, fuzz} => {
                 
@@ -38,7 +38,11 @@ impl Material {
 
                 let should_scatter = Vec3::dot(&scattered_ray.dir, &hit.normal) > 0.0;
 
-                (attenuation, scattered_ray, should_scatter)
+                if should_scatter {
+                    Some((attenuation, scattered_ray))
+                } else {
+                    None
+                }
             }
             Material::Dielectric { ior, color} => {
                 let refraction_ratio = if hit.front_face { 1.0/ior } else { ior };
@@ -58,8 +62,9 @@ impl Material {
                 };
 
                 let scattered = Ray::new(hit.point, scatter_dir);
+                let attenuation = color.value(hit.point);
 
-                (color.value(hit.point), scattered, true) 
+                Some((attenuation, scattered))
             }
         }
     }
