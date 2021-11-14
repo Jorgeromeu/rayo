@@ -1,27 +1,39 @@
 {
     "camera": {
-        "lookfrom": [5, 3, 5],
+        "lookfrom": [5, 8, 5],
         "lookat": [0, 1.5, -1],
         "vup": [0, 1, 0],
-        "vfov": 35,
+        "vfov": 25,
         "focal-length": 5.19,
         "aperture": 0.0
     },
 
     "spheres": [
 
-        // glass ball
         {
             "center": [0, 2, -1],
             "radius": 1.5,
-            "material": {"type": "dielectric", "ior": 2, "color": [1, 1, 1]}
+            "material": {
+                "type": "metal", 
+                "albedo": [1, 1, 1],
+                "fuzz": 0.0
+            }
         },
 
-        // floor
         {
             "center": [0, -80, -1],
             "radius": 80,
-            "material": {"type": "lambertian", "albedo": {"type": "checker", "even": [0, 1, 0], "odd": [0, 0, 1], "size": 10}}
+            "material": {
+                "type": "metal",
+                "fuzz": 0.0,
+                "albedo": {
+                    "type": "checker", 
+                    "even": [0.1, 0.9, 0.1], 
+                    "odd": [0.1, 0.1, 0.9], 
+                    "size": 8,
+                    "round": 0.05
+                }
+           }
         }
     ]
 }

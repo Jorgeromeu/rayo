@@ -163,7 +163,8 @@ impl ParseJson<Texture> for Texture {
                         let odd = Color::parse_json(&obj["odd"]);
                         let even = Color::parse_json(&obj["even"]);
                         let size = obj["size"].as_f64().unwrap();
-                        Texture::Checkered {odd, even, size}
+                        let round = obj["round"].as_f64().unwrap();
+                        Texture::Checkered {odd, even, size, round}
                     }
                     _ => todo!()
                 }
