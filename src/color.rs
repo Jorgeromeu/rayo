@@ -122,5 +122,13 @@ impl Color {
 
         image::Rgb([ri, gi, bi])
     }
-    
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return (self.r.abs() < s) && (self.g.abs() < s) && (self.b.abs() < s);
+    }
+
+    pub fn is_close(&self, vec: &Color) -> bool {
+        (*self - *vec).near_zero()
+    }
 }

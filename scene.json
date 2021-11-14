@@ -9,14 +9,25 @@
     },
 
     "spheres": [
+       
+        // light
+        {
+            "center": [-2, 7, -1],
+            "radius": 2,
+            "material": {
+                "type": "diffuseLight", 
+                "color": [1, 1, 1]
+            }
+        },
 
+        // mirror
         {
             "center": [0, 2, -1],
             "radius": 1.5,
             "material": {
-                "type": "metal", 
-                "albedo": [1, 1, 1],
-                "fuzz": 0.0
+                "type": "dielectric", 
+                "color": [1, 1, 1],
+                "ior": 2
             }
         },
 
@@ -24,14 +35,13 @@
             "center": [0, -80, -1],
             "radius": 80,
             "material": {
-                "type": "metal",
-                "fuzz": 0.0,
+                "type": "lambertian",
                 "albedo": {
                     "type": "checker", 
                     "even": [0.1, 0.9, 0.1], 
                     "odd": [0.1, 0.1, 0.9], 
                     "size": 8,
-                    "round": 0.05
+                    "round": 0
                 }
            }
         }

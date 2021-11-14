@@ -9,6 +9,7 @@ pub enum Material {
     Lambertian { albedo: Texture },
     Metal { albedo: Texture, fuzz: f64 },
     Dielectric { ior: f64, color: Texture },
+    DiffuseLight { texture: Texture }
 }
 
 impl Material {
@@ -66,9 +67,22 @@ impl Material {
 
                 Some((attenuation, scattered))
             }
+            Material::DiffuseLight { texture: _ } => None
         }
     }
+    pub fn emmit(self, _u: f64, _v: f64, p: Vec3) -> Color {
+        match self {
+            Material::DiffuseLight { texture }=> {
+                texture.value(p)
+            },
+            _ => Color::black()
+        }
+    }
+
 }
+
+
+// private helper functions
 
 fn reflect(vec: &Vec3, normal: &Vec3) -> Vec3{
     *vec - 2.0 * Vec3::dot(vec, normal) * *normal

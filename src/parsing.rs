@@ -145,6 +145,10 @@ impl ParseJson<Material> for Material {
                         let color = Texture::parse_json(&obj["color"]);
                         Material::Dielectric {ior, color}
                     }
+                    "diffuseLight" => {
+                        let texture = Texture::parse_json(&obj["color"]);
+                        Material::DiffuseLight {texture}
+                    }
                     _ => panic!("Unknown material type")
                 }
             },

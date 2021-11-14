@@ -4,7 +4,7 @@ use image::{ImageBuffer, Rgb, RgbImage};
 use indicatif::ProgressBar;
 use intersection::{scene::Scene, Hittable};
 use rayon::iter::*;
-use std::{fs, time};
+use std::{fs, ptr::NonNull, time};
 
 mod camera;
 mod cli;
@@ -16,28 +16,40 @@ mod ray;
 mod texture;
 mod vec;
 
+
 fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
+    
     // if we have exceeded the depth limit no more light is gathered
     if depth > max_depth {
         return Color::black();
     }
 
-    let t_min = 0.1;
-    let t_max = f64::MAX;
-
     // intersect scene
-    match scene.intersect(ray,t_min, t_max) {
+    let hit = scene.intersect(ray, 0.1, f64::MAX);
+
+    match hit {
 
         // if hit, scatter
-        Some(hit) => match hit.material.scatter(ray, hit) {
-            Some((attenuation, scattered_ray)) => {
-                attenuation * ray_color(&scattered_ray, scene, depth + 1, max_depth)
+        Some(hit) => {
+
+            // get hit emmision from hit
+            let emitted = hit.material.emmit(hit.u, hit.v, hit.point);
+
+            // scatter
+            match hit.material.scatter(ray, hit) {
+                
+                // if material scatters, scatter
+                Some((attenuation, scattered_ray)) => 
+                    return emitted + attenuation * ray_color(&scattered_ray, scene, depth+1, max_depth),
+
+                // else illuminate scene
+                None => emitted
             }
-            None => Color::black(),
         },
 
-        // if no intersection return sky color
-        None => Color::sky(ray),
+        // if no hit return sky color
+        // None => Color::sky(ray),
+        None => Color::black()
     }
 }
 
