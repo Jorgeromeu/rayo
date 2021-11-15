@@ -2,9 +2,11 @@
 
 A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 
-# Render
+# Renders
 
 ![Best render](renders/checkered.png)
+
+![cf35da1f-91df-4d81-8f47-2a22e95df9dc](https://user-images.githubusercontent.com/40536127/141806306-42c4c7f1-510e-4a13-9c7b-ece8fcc1a88d.png)
 
 # Usage
 
@@ -29,7 +31,7 @@ ARGS:
     <SCENE>    The Scene JSON file
 ```
 
-To create a render you need to create a corresponding scene file defining the positions, shapes and colors of all of the models in the scene. A collection of example scenes are c
+To create a render you need to create a corresponding scene file defining the positions, shapes and colors of all of the models in the scene. A collection of example scenes can be found in the `scenes`folder.
 
 # Features
 
@@ -44,6 +46,7 @@ Many features are yet to be implemented
 - [x] Spheres
 - [ ] Axis aligned boxes
 - [ ] Triangle meshes
+- [ ] Planes
 
 ## Materials
 
@@ -55,10 +58,12 @@ Many features are yet to be implemented
 
 - [x] Anti aliasing
 - [x] Depth of field
+- [ ] Skyboxes
 - [ ] Motion blur 
 - [x] Adjustable camera positions
 - [x] Textures (checkerboard)
 - [ ] Textures (reading from image)
+- [x] Light objects
 
 ## Efficiency enhancements
 
