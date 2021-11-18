@@ -1,6 +1,6 @@
 # Rayo
 
-A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+A ray tracer implementation written in rust. Inspired by the amazing  [_Ray Tracing in One Weekend_](https://raytracing.github.io/) book series.
 
 # Renders
 
@@ -10,7 +10,7 @@ A ray tracer implementation written in rust. Inspired by the amazing book: [_Ray
 
 # Usage
 
-Rayo is (currenty) a command line tool. The available flags and options are:
+`rayo` is (currenty) a command line tool. The available flags and options are:
 
 ```
 USAGE:
@@ -31,15 +31,15 @@ ARGS:
     <SCENE>    The Scene JSON file
 ```
 
-To create a render you need to create a corresponding scene file defining the positions, shapes and colors of all of the models in the scene. A collection of example scenes can be found in the `scenes`folder.
+To create a render you need to create a corresponding scene file defining the positions, shapes, materials and textures of all of the models in the scene. A collection of example scenes can be found in the `scenes` folder.
 
 # Features
 
-Many features are yet to be implemented
+Many features are yet to be implemented. The basic roadmap is:
 
 - [x] Nice CLI
 - [x] Reading scenes from json or some other similar format
-- [ ] Support for OBJ files for meshes
+- [ ] Support for OBJ files for meshes (using assimp)
 
 ## Shapes
 
