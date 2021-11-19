@@ -16,3 +16,6 @@ Cargo.lock
 # ignore the default scene and render names
 render.png
 scene.json
+
+# vscode folder
+.vscode

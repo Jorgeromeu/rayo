@@ -1,16 +1,27 @@
-pub struct CliOptions {
+use clap::{App, Arg, SubCommand};
+
+pub struct CliArgs {
     pub img_x: u32,
     pub img_y: u32,
     pub max_depth: u32,
-    pub num_samples: u32,
-    pub output_file: String,
     pub scene_file: String,
-    pub silent: bool,
     pub aspect_ratio: f64,
+    pub subcmd_args: SubCommandArgs,
 }
 
-pub fn read_cli() -> CliOptions {
+#[derive(Clone)]
+pub enum SubCommandArgs {
+    ImgArgs {
+        num_samples: u32,
+        output_file: String,
+    },
+    DbgArgs {
+        pixel_x: u32,
+        pixel_y: u32,
+    },
+}
 
+pub fn read_cli() -> CliArgs {
     // validates wether or not a number is a unsigned int
     fn is_uint_validator(s: &str) -> Result<(), String> {
         let re = regex::Regex::new(r"^[0-9]+$").unwrap();
@@ -22,40 +33,16 @@ pub fn read_cli() -> CliOptions {
         }
     }
 
-    // define CLI arguments
-    let matches = clap::App::new("rayo")
-        .version("0.1")
-        .about("render beautiful images")
-        .author("Jorge Romeu. <jorge.romeu.huidobro@gmail.com>")
-        // silent flag
+    let matches = App::new("rayo")
         .arg(
-            clap::Arg::with_name("silent")
-                .short("s")
-                .long("silent")
-                .required(false)
-                .takes_value(false)
-                .help("If set, do not print progressbar or render duration"),
-        )
-        // output file
-        .arg(
-            clap::Arg::with_name("output-file")
-                .short("o")
-                .long("out")
-                .value_name("FILE")
-                .help("Rendered image path")
-                .takes_value(true)
-                .default_value("render.png"),
-        )
-        // scene file
-        .arg(
-            clap::Arg::with_name("scene-file")
+            Arg::with_name("scene-file")
                 .value_name("SCENE")
                 .help("The Scene JSON file")
                 .required(true),
         )
         // resolution
         .arg(
-            clap::Arg::with_name("resolution")
+            Arg::with_name("resolution")
                 .short("r")
                 .long("resolution")
                 .value_name("RESOLUTION")
@@ -66,7 +53,7 @@ pub fn read_cli() -> CliOptions {
         )
         // aspect ratio
         .arg(
-            clap::Arg::with_name("aspect")
+            Arg::with_name("aspect")
                 .short("a")
                 .long("aspect")
                 .value_name("ASPECT-RATIO")
@@ -84,7 +71,7 @@ pub fn read_cli() -> CliOptions {
         )
         // max recursion depth
         .arg(
-            clap::Arg::with_name("max-depth")
+            Arg::with_name("max-depth")
                 .short("d")
                 .long("depth")
                 .value_name("MAX-DEPTH")
@@ -92,21 +79,39 @@ pub fn read_cli() -> CliOptions {
                 .default_value("30")
                 .validator(|s| is_uint_validator(&s)),
         )
-        // number of smaples per pixel
-        .arg(
-            clap::Arg::with_name("num-samples")
-                .short("n")
-                .long("num-samples")
-                .value_name("NUM-SAMPLES")
-                .help("Number of samples per pixel")
-                .default_value("100")
-                .validator(|s| is_uint_validator(&s)),
+        .subcommand(
+            SubCommand::with_name("img")
+                .about("Render scene to an image")
+                // number of smaples per pixel
+                .arg(
+                    Arg::with_name("num-samples")
+                        .short("n")
+                        .long("num-samples")
+                        .value_name("NUM-SAMPLES")
+                        .help("Number of samples per pixel")
+                        .default_value("100")
+                        .validator(|s| is_uint_validator(&s)),
+                )
+                .arg(
+                    Arg::with_name("output-file")
+                        .short("o")
+                        .long("out")
+                        .value_name("OUTPUT-FILE")
+                        .help("Output file")
+                        .default_value("render.png"),
+                ),
+        )
+        .subcommand(
+            App::new("dbg").about("Debug rayo").arg(
+                Arg::with_name("pixel")
+                    .short("px")
+                    .long("pixel")
+                    .value_name("PIXEL-COORDS")
+                    .help("The pixel coords for which to run the raytracer: x,y")
+                    .default_value("0,0"),
+            ),
         )
         .get_matches();
-
-    // otuput file
-    let output_file_name = matches.value_of("output-file").unwrap_or_default();
-    let output_file = String::from(output_file_name);
 
     // otuput file
     let scene_file_name = matches.value_of("scene-file").unwrap_or_default();
@@ -118,6 +123,7 @@ pub fn read_cli() -> CliOptions {
         .unwrap_or_default()
         .split("/")
         .collect();
+
     let aspect_x: f64 = aspect[0].parse().unwrap();
     let aspect_y: f64 = aspect[1].parse().unwrap();
     let aspect_ratio = aspect_x / aspect_y;
@@ -128,6 +134,7 @@ pub fn read_cli() -> CliOptions {
         .unwrap_or_default()
         .parse()
         .unwrap();
+
     let img_y: u32 = (img_x as f64 / aspect_ratio) as u32;
 
     // max depth
@@ -137,24 +144,37 @@ pub fn read_cli() -> CliOptions {
         .parse()
         .unwrap();
 
-    // num samples
-    let num_samples: u32 = matches
-        .value_of("num-samples")
-        .unwrap_or_default()
-        .parse()
-        .unwrap();
+    // read matches
+    let subcmd_args = match matches.subcommand() {
+        ("img", Some(img_matches)) => {
+            // num samples
+            let num_samples: u32 = img_matches
+                .value_of("num-samples")
+                .unwrap_or_default()
+                .parse()
+                .unwrap();
 
-    // silent
-    let silent: bool = matches.is_present("silent");
+            // otuput file
+            let output_file_name = img_matches.value_of("output-file").unwrap_or_default();
+            let output_file = String::from(output_file_name);
 
-    CliOptions {
-        output_file,
-        scene_file,
+            SubCommandArgs::ImgArgs {
+                num_samples,
+                output_file,
+            }
+        }
+        ("dbg", Some(dbg_matches)) => {
+            todo!()
+        }
+        _ => panic!(),
+    };
+
+    CliArgs {
         img_x,
         img_y,
         max_depth,
-        num_samples,
-        silent,
         aspect_ratio,
+        scene_file,
+        subcmd_args,
     }
 }

@@ -1,5 +1,5 @@
-use crate::color::Color;
 use crate::ray::Ray;
+use crate::{cli::CliArgs, cli::SubCommandArgs, color::Color};
 use image::{ImageBuffer, Rgb, RgbImage};
 use indicatif::ProgressBar;
 use intersection::{scene::Scene, Hittable};
@@ -16,9 +16,7 @@ mod ray;
 mod texture;
 mod vec;
 
-
 fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
-    
     // if we have exceeded the depth limit no more light is gathered
     if depth > max_depth {
         return Color::black();
@@ -28,80 +26,89 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
     let hit = scene.intersect(ray, 0.1, f64::MAX);
 
     match hit {
-
         // if hit, scatter
         Some(hit) => {
-
             // get hit emmision from hit
             let emitted = hit.material.emmit(hit.u, hit.v, hit.point);
 
             // scatter
             match hit.material.scatter(ray, hit) {
-                
                 // if material scatters, scatter
-                Some((attenuation, scattered_ray)) => 
-                    return emitted + attenuation * ray_color(&scattered_ray, scene, depth+1, max_depth),
+                Some((attenuation, scattered_ray)) => {
+                    return emitted
+                        + attenuation * ray_color(&scattered_ray, scene, depth + 1, max_depth)
+                }
 
                 // else illuminate scene
-                None => emitted
+                None => emitted,
             }
-        },
+        }
 
         // if no hit return sky color
         // None => Color::sky(ray),
-        None => Color::black()
+        None => Color::black(),
     }
 }
 
 fn main() {
     // read CLI args
     let opts = cli::read_cli();
+    let subcmd = opts.subcmd_args.clone();
 
-    // Construct Scene
-    let scene_json = fs::read_to_string(&opts.scene_file).unwrap();
-    let (scene, camera) = parsing::parse_scene(scene_json, opts.aspect_ratio);
+    match subcmd {
+        SubCommandArgs::ImgArgs {
+            num_samples,
+            output_file,
+        } => {
 
-    // Initialize image
-    let mut img: RgbImage = ImageBuffer::new(opts.img_x, opts.img_y);
+            // Construct Scene
+            let scene_json = fs::read_to_string(&opts.scene_file).unwrap();
+            let (scene, camera) = parsing::parse_scene(scene_json, opts.aspect_ratio);
 
-    let mut pixels: Vec<(u32, u32, &mut Rgb<u8>)> = img.enumerate_pixels_mut().collect();
+            // Initialize image
+            let mut img: RgbImage = ImageBuffer::new(opts.img_x, opts.img_y);
 
-    // Initialize progressbar with number of pixels
-    let bar = ProgressBar::new((opts.img_x * opts.img_y) as u64);
+            let mut pixels: Vec<(u32, u32, &mut Rgb<u8>)> = img.enumerate_pixels_mut().collect();
 
-    let start_time = time::Instant::now();
+            // Initialize progressbar with number of pixels
+            let bar = ProgressBar::new((opts.img_x * opts.img_y) as u64);
 
-    // parallelized ray tracing loop
-    pixels.par_iter_mut().for_each(|tup| {
-        let x = tup.0;
-        let y = opts.img_y - 1 - tup.1;
+            let start_time = time::Instant::now();
 
-        // start with a black color
-        let mut color = Color::black();
+            // parallelized ray tracing loop
+            pixels.par_iter_mut().for_each(|tup| {
+                let x = tup.0;
+                let y = opts.img_y - 1 - tup.1;
 
-        // sample several times
-        for _ in 0..opts.num_samples {
-            let u = ((x as f64) + rand::random::<f64>()) / (opts.img_x - 1) as f64;
-            let v = ((y as f64) + rand::random::<f64>() as f64) / (opts.img_y - 1) as f64;
+                // start with a black color
+                let mut color = Color::black();
 
-            let secondary_ray = camera.generate_ray(u, v);
-            color += ray_color(&secondary_ray, &scene, 0, opts.max_depth);
+                // sample several times
+                for _ in 0..num_samples {
+                    let u = ((x as f64) + rand::random::<f64>()) / (opts.img_x - 1) as f64;
+                    let v = ((y as f64) + rand::random::<f64>() as f64) / (opts.img_y - 1) as f64;
+
+                    let secondary_ray = camera.generate_ray(u, v);
+                    color += ray_color(&secondary_ray, &scene, 0, opts.max_depth);
+                }
+
+                // write pixel to image buffer
+                let final_pix = color.to_pixel(num_samples);
+                *(tup.2) = final_pix;
+
+                // increment progressbar
+                bar.inc(1);
+            });
+
+            let elapsed = start_time.elapsed();
+
+            // finish progressbar
+            bar.finish();
+            println!("rendering took: {} seconds", elapsed.as_secs());
+
+            // write image to file
+            img.save(output_file).unwrap();
         }
-
-        // write pixel to image buffer
-        let final_pix = color.to_pixel(opts.num_samples);
-        *(tup.2) = final_pix;
-
-        // increment progressbar
-        bar.inc(1);
-    });
-
-    let elapsed = start_time.elapsed();
-
-    // finish progressbar
-    bar.finish();
-    println!("rendering took: {} seconds", elapsed.as_secs());
-
-    // write image to file
-    img.save(opts.output_file).unwrap();
+        SubCommandArgs::DbgArgs { pixel_x, pixel_y } => todo!(),
+    }
 }
