@@ -5,6 +5,7 @@ use json_comments::StripComments;
 use json::JsonValue;
 use crate::camera::Camera;
 use crate::color::Color;
+use crate::intersection::aab::AxisAlignedBox;
 use crate::intersection::sphere::Sphere;
 use crate::intersection::scene::Scene;
 use crate::material::Material;
@@ -36,6 +37,20 @@ pub fn parse_scene(scene_json: String, aspect_ratio: f64) -> (Scene, Camera) {
                     for sphere_json in spheres_vec {
                         let sphere = Sphere::parse_json(sphere_json);
                         scene.spheres.push(sphere);
+                    }
+
+                }
+                _ => panic!()
+            }
+
+            let aabs = &obj["aabs"];
+
+            match aabs {
+                JsonValue::Array(aabs_vec) => {
+
+                    for aab_json in aabs_vec {
+                        let aab = AxisAlignedBox::parse_json(aab_json);
+                        scene.aabs.push(aab);
                     }
 
                 }
@@ -77,6 +92,22 @@ impl ParseJson<Sphere> for Sphere {
                 Sphere { center, radius, material }
             },
             _ => panic!("Sphere should be an object")
+        }
+    }
+}
+
+impl ParseJson<AxisAlignedBox> for AxisAlignedBox {
+    
+    fn parse_json(json_value: &JsonValue) -> AxisAlignedBox {
+
+        match json_value {
+            JsonValue::Object(obj) => {
+                let min = Vec3::parse_json(&obj["min"]);
+                let max = Vec3::parse_json(&obj["max"]);
+                let material = Material::parse_json(&obj["material"]);
+                AxisAlignedBox { min, max, material }
+            },
+            _ => panic!("Material should be an object")
         }
     }
 }

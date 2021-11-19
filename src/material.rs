@@ -1,3 +1,5 @@
+use std::ptr::NonNull;
+
 use crate::color::Color;
 use crate::intersection::hitinfo::HitInfo;
 use crate::ray::Ray;
@@ -9,7 +11,8 @@ pub enum Material {
     Lambertian { albedo: Texture },
     Metal { albedo: Texture, fuzz: f64 },
     Dielectric { ior: f64, color: Texture },
-    DiffuseLight { texture: Texture }
+    DiffuseLight { texture: Texture },
+    Debug
 }
 
 impl Material {
@@ -67,7 +70,8 @@ impl Material {
 
                 Some((attenuation, scattered))
             }
-            Material::DiffuseLight { texture: _ } => None
+            Material::DiffuseLight { texture: _ } => None,
+            Material::Debug => None
         }
     }
     pub fn emmit(self, _u: f64, _v: f64, p: Vec3) -> Color {

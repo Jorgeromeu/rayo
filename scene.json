@@ -1,35 +1,68 @@
 {
     "camera": {
         "lookfrom": [5, 8, 5],
-        "lookat": [0, 1.5, -1],
+        "lookat": [0, 1, -1],
         "vup": [0, 1, 0],
-        "vfov": 25,
+        "vfov": 12,
         "focal-length": 5.19,
         "aperture": 0.0
     },
 
+    "aabs": [
+        {
+            "min": [-0.5, 0.5, -1.5],
+            "max": [0.5, 1.5, -0.5],
+            "material": {
+                "type": "metal",
+                "albedo": [0.9, 0.9, 0.9],
+                "fuzz": 0.0 
+            }
+        }
+    ],
+
     "spheres": [
        
         // light
-        {
-            "center": [-2, 7, -1],
-            "radius": 2,
-            "material": {
-                "type": "diffuseLight", 
-                "color": [1, 1, 1]
-            }
-        },
+        // {
+        //     "center": [10, 25, -1],
+        //     "radius": 7,
+        //     "material": {
+        //         "type": "diffuseLight", 
+        //         "color": [0.5, 0.5, 1]
+        //     }
+        // },
 
-        // mirror
-        {
-            "center": [0, 2, -1],
-            "radius": 1.5,
-            "material": {
-                "type": "dielectric", 
-                "color": [1, 1, 1],
-                "ior": 2
-            }
-        },
+        // glass
+        // {
+        //     "center": [0, 2, -1],
+        //     "radius": 1.5,
+        //     "material": {
+        //         "type": "dielectric", 
+        //         "color": [1, 1, 1],
+        //         "ior": 2
+        //     }
+        // },
+       
+        // lambert
+        // {
+        //     "center": [0, 0, 0],
+        //     "radius": 0.6,
+        //     "material": {
+        //         "type": "lambertian", 
+        //         "albedo": [0.1, 0.6 ,0.1]
+        //     }
+        // },
+
+        // metal
+        // {
+        //     "center": [0, 2, -1],
+        //     "radius": 1.5,
+        //     "material": {
+        //         "type": "metal", 
+        //         "albedo": [1, 1, 1],
+        //         "fuzz": 0.05
+        //     }
+        // },
 
         {
             "center": [0, -80, -1],
@@ -38,9 +71,9 @@
                 "type": "lambertian",
                 "albedo": {
                     "type": "checker", 
-                    "even": [0.1, 0.9, 0.1], 
-                    "odd": [0.1, 0.1, 0.9], 
-                    "size": 8,
+                    "even": [1, 1, 1], 
+                    "odd": [0.8, 0.2, 0.2], 
+                    "size": 7,
                     "round": 0
                 }
            }

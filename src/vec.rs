@@ -166,4 +166,21 @@ impl Vec3 {
             z: u.x * v.y - u.y * v.x
         }
     }
+
+    pub fn components(self) -> Vec<f64> {
+        vec![self.x, self.y, self.z]
+    }
+}
+
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_components() {
+        let vec = Vec3::new(1.0, 0.0, -1.0);
+        let components = vec.components();
+
+        assert_eq!(vec![1.0, 0.0, -1.0], vec.components());
+    }
+    
 }

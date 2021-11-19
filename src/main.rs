@@ -1,4 +1,6 @@
-use crate::color::Color;
+use crate::texture::Texture;
+use crate::vec::Vec3;
+use crate::{color::Color, intersection::aab::AxisAlignedBox};
 use crate::ray::Ray;
 use image::{ImageBuffer, Rgb, RgbImage};
 use indicatif::ProgressBar;
@@ -48,8 +50,8 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
         },
 
         // if no hit return sky color
-        // None => Color::sky(ray),
-        None => Color::black()
+        None => Color::sky(ray),
+        // None => Color::black()
     }
 }
 
