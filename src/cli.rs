@@ -60,7 +60,7 @@ pub fn read_cli() -> CliArgs {
                 .help("Aspect ratio")
                 .default_value("16/9")
                 .validator(|s| {
-                    let re = regex::Regex::new(r"^[0-9]+/[0-9]$").unwrap();
+                    let re = regex::Regex::new(r"^[0-9]+/[0-9]+$").unwrap();
 
                     if re.is_match(&s) {
                         Ok(())
@@ -104,11 +104,18 @@ pub fn read_cli() -> CliArgs {
         .subcommand(
             App::new("dbg").about("Debug rayo").arg(
                 Arg::with_name("pixel")
-                    .short("px")
-                    .long("pixel")
                     .value_name("PIXEL-COORDS")
                     .help("The pixel coords for which to run the raytracer: x,y")
-                    .default_value("0,0"),
+                    .default_value("0,0")
+                    .validator(|s| {
+                        let re = regex::Regex::new(r"^[0-9]+,[0-9]+$").unwrap();
+
+                        if re.is_match(&s) {
+                            Ok(())
+                        } else {
+                            Err(String::from("Expected input of the form: x/y with x and y being integers"))
+                        }
+                    }),
             ),
         )
         .get_matches();
@@ -164,7 +171,16 @@ pub fn read_cli() -> CliArgs {
             }
         }
         ("dbg", Some(dbg_matches)) => {
-            todo!()
+            let pixel: Vec<&str> = dbg_matches
+                .value_of("pixel")
+                .unwrap_or_default()
+                .split(",")
+                .collect();
+
+            let pixel_x: u32 = pixel[0].parse().unwrap();
+            let pixel_y: u32 = pixel[1].parse().unwrap();
+
+            SubCommandArgs::DbgArgs { pixel_x, pixel_y }
         }
         _ => panic!(),
     };

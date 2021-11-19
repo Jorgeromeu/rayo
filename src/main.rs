@@ -35,8 +35,7 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
             match hit.material.scatter(ray, hit) {
                 // if material scatters, scatter
                 Some((attenuation, scattered_ray)) => {
-                    return emitted
-                        + attenuation * ray_color(&scattered_ray, scene, depth + 1, max_depth)
+                    emitted + attenuation * ray_color(&scattered_ray, scene, depth + 1, max_depth)
                 }
 
                 // else illuminate scene
@@ -88,8 +87,8 @@ fn main() {
                     let u = ((x as f64) + rand::random::<f64>()) / (opts.img_x - 1) as f64;
                     let v = ((y as f64) + rand::random::<f64>() as f64) / (opts.img_y - 1) as f64;
 
-                    let secondary_ray = camera.generate_ray(u, v);
-                    color += ray_color(&secondary_ray, &scene, 0, opts.max_depth);
+                    let ray = camera.generate_ray(u, v);
+                    color += ray_color(&ray, &scene, 0, opts.max_depth);
                 }
 
                 // write pixel to image buffer
@@ -109,6 +108,17 @@ fn main() {
             // write image to file
             img.save(output_file).unwrap();
         }
-        SubCommandArgs::DbgArgs { pixel_x, pixel_y } => todo!(),
+        SubCommandArgs::DbgArgs { pixel_x, pixel_y } => {
+            
+            // Construct Scene
+            let scene_json = fs::read_to_string(&opts.scene_file).unwrap();
+            let (scene, camera) = parsing::parse_scene(scene_json, opts.aspect_ratio);
+
+            let u = ((pixel_x as f64) + rand::random::<f64>()) / (opts.img_x - 1) as f64;
+            let v = ((pixel_y as f64) + rand::random::<f64>() as f64) / (opts.img_y - 1) as f64;
+
+            let ray = camera.generate_ray(u, v);
+            ray_color(&ray, &scene, 0, opts.max_depth);
+        },
     }
 }
