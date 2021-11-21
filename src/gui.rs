@@ -1,7 +1,7 @@
 use std::fs;
 
 use image::{ImageBuffer, Rgba, RgbaImage};
-use piston::{Event, RenderEvent, WindowSettings};
+use piston::{Button, ButtonArgs, ButtonState, Event, Input, Key, RenderEvent, WindowSettings};
 use piston_window::{PistonWindow, TextureSettings};
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
@@ -13,6 +13,7 @@ struct App {
     pub scene: Scene,
     pub camera: Camera,
     pub opts: CliArgs,
+    pub paused: bool
 }
 
 pub fn run_gui(opts: CliArgs) {
@@ -32,6 +33,7 @@ pub fn run_gui(opts: CliArgs) {
         scene,
         camera,
         opts,
+        paused: false
     };
 
     app.run(&mut window);
@@ -45,13 +47,23 @@ impl App {
         }
     }
 
-    pub fn update(&mut self, event: Event) {}
+    pub fn update(&mut self, event: Event) {
+        match event {
+            Event::Input(Input::Button(ButtonArgs { state: ButtonState::Press, button: Button::Keyboard(Key::P), scancode }), _) => {
+                self.paused = !self.paused;
+            },
+            _ => {}
+        }
+    }
 
     pub fn render(&mut self, event: Event, window: &mut PistonWindow) {
-        // TODO handle event
 
         let mut texture_ctx = window.create_texture_context();
         let texture_settings = TextureSettings::new();
+
+        if self.paused {
+            return;
+        }
 
         window.draw_2d(&event, |ctx, graphics, _device| {
             // clear graphics
