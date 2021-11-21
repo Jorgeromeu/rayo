@@ -20,14 +20,13 @@
             }
         },
 
-        // mirror
+        // ball
         {
             "center": [0, 2, -1],
             "radius": 1.5,
             "material": {
-                "type": "dielectric", 
-                "color": [1, 1, 1],
-                "ior": 2
+                "type": "lambertian", 
+                "albedo": [1, 0, 0]
             }
         },
 

@@ -1,5 +1,7 @@
 use clap::{App, Arg, SubCommand};
 
+
+#[derive(Clone)]
 pub struct CliArgs {
     pub img_x: u32,
     pub img_y: u32,

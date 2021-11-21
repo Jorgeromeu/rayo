@@ -1,6 +1,7 @@
 use crate::ray::Ray;
 use crate::texture::Texture;
 use crate::{cli::SubCommandArgs, color::Color};
+use camera::Camera;
 use image::{ImageBuffer, Rgb, RgbImage, Rgba, RgbaImage};
 use indicatif::ProgressBar;
 use intersection::{scene::Scene, Hittable};
@@ -11,8 +12,8 @@ use std::{fs, time};
 
 mod camera;
 mod cli;
-mod gui;
 mod color;
+mod gui;
 mod intersection;
 mod material;
 mod parsing;
@@ -48,10 +49,24 @@ fn ray_color(ray: &Ray, scene: &Scene, depth: u32, max_depth: u32) -> Color {
         }
 
         // if no hit return sky color
-        // None => Color::sky(ray),
+        // None => Color::white(),
         None => Color::black(),
     }
 }
+
+// fn pixel_color_incremental(
+//     running_avg: Color,
+//     samples_so_far: u32,
+//     u: f64,
+//     v: f64,
+//     max_depth: u32,
+//     cam: &Camera,
+//     scene: &Scene,
+// ) -> Color {
+//     let ray = cam.generate_ray(u, v);
+//     let this_color = ray_color(&ray, &scene, 0, max_depth)
+
+// }
 
 fn main() {
     // read CLI args
@@ -122,6 +137,6 @@ fn main() {
             let ray = camera.generate_ray(u, v);
             ray_color(&ray, &scene, 0, opts.max_depth);
         }
-        SubCommandArgs::GuiArgs {} => gui::run_gui(opts)
+        SubCommandArgs::GuiArgs {} => gui::run_gui(opts),
     }
 }
