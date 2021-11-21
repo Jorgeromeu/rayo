@@ -11,4 +11,6 @@ indicatif = "0.16.2" # progres bar
 clap = "2.33.3" # ez clis
 regex = "1" # obvious
 json = "0.12.4" # json parser
-json_comments = "0.2.0" # Makes it easy to strip comments from json
+json_comments = "0.2.0" # Makes it easy to strip comments from jso  n
+piston = "*"
+piston_window = "*"

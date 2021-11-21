@@ -1,13 +1,17 @@
 use crate::ray::Ray;
-use crate::{cli::CliArgs, cli::SubCommandArgs, color::Color};
-use image::{ImageBuffer, Rgb, RgbImage};
+use crate::texture::Texture;
+use crate::{cli::SubCommandArgs, color::Color};
+use image::{ImageBuffer, Rgb, RgbImage, Rgba, RgbaImage};
 use indicatif::ProgressBar;
 use intersection::{scene::Scene, Hittable};
+use piston::WindowSettings;
+use piston_window::{G2dTexture, PistonWindow, TextureSettings};
 use rayon::iter::*;
-use std::{fs, ptr::NonNull, time};
+use std::{fs, time};
 
 mod camera;
 mod cli;
+mod gui;
 mod color;
 mod intersection;
 mod material;
@@ -59,7 +63,6 @@ fn main() {
             num_samples,
             output_file,
         } => {
-
             // Construct Scene
             let scene_json = fs::read_to_string(&opts.scene_file).unwrap();
             let (scene, camera) = parsing::parse_scene(scene_json, opts.aspect_ratio);
@@ -109,7 +112,6 @@ fn main() {
             img.save(output_file).unwrap();
         }
         SubCommandArgs::DbgArgs { pixel_x, pixel_y } => {
-            
             // Construct Scene
             let scene_json = fs::read_to_string(&opts.scene_file).unwrap();
             let (scene, camera) = parsing::parse_scene(scene_json, opts.aspect_ratio);
@@ -119,6 +121,7 @@ fn main() {
 
             let ray = camera.generate_ray(u, v);
             ray_color(&ray, &scene, 0, opts.max_depth);
-        },
+        }
+        SubCommandArgs::GuiArgs {} => gui::run_gui(opts)
     }
 }

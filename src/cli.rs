@@ -19,6 +19,7 @@ pub enum SubCommandArgs {
         pixel_x: u32,
         pixel_y: u32,
     },
+    GuiArgs {}
 }
 
 pub fn read_cli() -> CliArgs {
@@ -118,6 +119,9 @@ pub fn read_cli() -> CliArgs {
                     }),
             ),
         )
+        .subcommand(
+            App::new("gui").about("Run with GUI")
+        )
         .get_matches();
 
     // otuput file
@@ -181,6 +185,9 @@ pub fn read_cli() -> CliArgs {
             let pixel_y: u32 = pixel[1].parse().unwrap();
 
             SubCommandArgs::DbgArgs { pixel_x, pixel_y }
+        }
+        ("gui", Some(gui_matches)) => {
+            SubCommandArgs::GuiArgs {}
         }
         _ => panic!(),
     };

@@ -81,7 +81,6 @@ impl Material {
 
 }
 
-
 // private helper functions
 
 fn reflect(vec: &Vec3, normal: &Vec3) -> Vec3{

@@ -1,4 +1,6 @@
 use std::ops;
+use image::Rgb;
+
 use crate::ray;
 
 #[derive(Debug, Clone, Copy)]
@@ -121,6 +123,36 @@ impl Color {
         let bi = (b.clamp(0.0, 0.999) * 255.0) as u8;
 
         image::Rgb([ri, gi, bi])
+    }
+    
+    pub fn to_pixel_rgba(&self, num_samples: u32) -> image::Rgba<u8> {
+
+        let mut r = self.r;
+        let mut g = self.g;
+        let mut b = self.b;
+
+        // Gamma correction + division
+        let scale = 1.0 / (num_samples as f64);
+        r = (scale * r).sqrt();
+        g = (scale * g).sqrt();
+        b = (scale * b).sqrt();
+
+        let ri = (r.clamp(0.0, 0.999) * 255.0) as u8;
+        let gi = (g.clamp(0.0, 0.999) * 255.0) as u8;
+        let bi = (b.clamp(0.0, 0.999) * 255.0) as u8;
+
+        image::Rgba([ri, gi, bi, 255])
+    }
+
+    pub fn from_pixel_rgba(pixel: image::Rgba<u8>) -> Color {
+
+        let colors = pixel.0;
+
+        let r = (colors[0] as f64) / 255.0;
+        let g = (colors[1] as f64) / 255.0;
+        let b = (colors[2] as f64) / 255.0;
+
+        Color {r, g, b}
     }
 
     pub fn near_zero(&self) -> bool {
