@@ -1,11 +1,12 @@
 use crate::{material::Material, ray::Ray, vec::Vec3};
-use super::{Hittable, hitinfo::HitInfo};
+
+use super::{hitinfo::HitInfo, Hittable};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Sphere {
     pub radius: f64,
     pub center: Vec3,
-    pub material: Material
+    pub material: Material,
 }
 
 impl Hittable for Sphere {
@@ -21,7 +22,7 @@ impl Hittable for Sphere {
         // no hit
         if discr < 0.0 {
             return None;
-        } 
+        }
 
         // yes hit
         let sqrtd = discr.sqrt();
@@ -34,7 +35,7 @@ impl Hittable for Sphere {
                 return None;
             }
         }
-        
+
         let outward_normal = (ray.at(root) - self.center).normalized();
 
         let hit = HitInfo::new(root, ray, outward_normal, self.material, 0.0, 0.0);

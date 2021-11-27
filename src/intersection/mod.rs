@@ -1,4 +1,5 @@
 use crate::ray::Ray;
+
 use self::hitinfo::HitInfo;
 
 pub mod hitinfo;

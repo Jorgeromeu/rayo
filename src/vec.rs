@@ -14,7 +14,11 @@ impl ops::Add<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Vec3 {
-        Vec3 { x: self.x+rhs.x, y: self.y+rhs.y, z: self.z+rhs.z }
+        Vec3 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
     }
 }
 
@@ -22,17 +26,24 @@ impl ops::Sub<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Vec3) -> Vec3 {
-        Vec3 { x: self.x-rhs.x, y: self.y-rhs.y, z: self.z-rhs.z }
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
     }
 }
 
 impl ops::Mul<Vec3> for Vec3 {
-
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Vec3 {
-        Vec3 {x: self.x*rhs.x, y: self.y*rhs.y, z: self.z*rhs.z}
-    }  
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
 }
 
 // Vector - float product and division
@@ -40,7 +51,11 @@ impl ops::Mul<f64> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, rhs: f64) -> Vec3 {
-        Vec3 { x: self.x*rhs, y: self.y*rhs, z: self.z*rhs }
+        Vec3 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
     }
 }
 
@@ -48,7 +63,11 @@ impl ops::Mul<Vec3> for f64 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Vec3 {
-        Vec3 { x: rhs.x*self, y: rhs.y*self, z: rhs.z*self }
+        Vec3 {
+            x: rhs.x * self,
+            y: rhs.y * self,
+            z: rhs.z * self,
+        }
     }
 }
 
@@ -56,15 +75,23 @@ impl ops::Div<f64> for Vec3 {
     type Output = Vec3;
 
     fn div(self, rhs: f64) -> Vec3 {
-        Vec3 { x: self.x/rhs, y: self.y/rhs, z: self.z/rhs }
+        Vec3 {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
     }
 }
 
 impl ops::Neg for Vec3 {
     type Output = Self;
-    
+
     fn neg(self) -> Self::Output {
-        Vec3 {x: -self.x, y: -self.y, z: -self.z}
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
     }
 }
 
@@ -73,7 +100,7 @@ impl ops::AddAssign<Vec3> for Vec3 {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
-    }    
+    }
 }
 
 impl ops::MulAssign<f64> for Vec3 {
@@ -81,7 +108,7 @@ impl ops::MulAssign<f64> for Vec3 {
         self.x *= rhs;
         self.y *= rhs;
         self.z *= rhs;
-    }    
+    }
 }
 
 impl ops::DivAssign<f64> for Vec3 {
@@ -89,13 +116,12 @@ impl ops::DivAssign<f64> for Vec3 {
         self.x *= rhs;
         self.y *= rhs;
         self.z *= rhs;
-    }    
+    }
 }
 
 impl Vec3 {
-
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Vec3 {x, y, z}
+        Vec3 { x, y, z }
     }
 
     pub fn random(min: f64, max: f64) -> Vec3 {
@@ -103,26 +129,34 @@ impl Vec3 {
         let rx: f64 = rng.gen_range(min..max);
         let ry: f64 = rng.gen_range(min..max);
         let rz: f64 = rng.gen_range(min..max);
-        Vec3 {x: rx, y: ry, z: rz}
+        Vec3 {
+            x: rx,
+            y: ry,
+            z: rz,
+        }
     }
-    
+
     pub fn random_unit() -> Vec3 {
         let rx: f64 = rand::random();
         let ry: f64 = rand::random();
         let rz: f64 = rand::random();
-        Vec3 {x: rx, y: ry, z: rz}
+        Vec3 {
+            x: rx,
+            y: ry,
+            z: rz,
+        }
     }
 
     pub fn random_in_unit_disk() -> Vec3 {
         let mut rng = rand::thread_rng();
-        
+
         let a = rng.gen::<f64>() * 2.0 * PI;
         let r = rng.gen::<f64>().sqrt();
 
         let x = r * a.cos();
         let y = r * a.sin();
 
-        Vec3 {x, y, z: 0.0}
+        Vec3 { x, y, z: 0.0 }
     }
 
     pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
@@ -130,19 +164,27 @@ impl Vec3 {
     }
 
     pub fn zero() -> Vec3 {
-        Vec3 {x: 0.0, y: 0.0, z: 0.0}
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
     }
 
     pub fn norm(&self) -> f64 {
-        (self.x*self.x + self.y*self.y + self.z*self.z).sqrt()
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
-    
+
     pub fn norm_sqared(&self) -> f64 {
-        self.x*self.x + self.y*self.y + self.z*self.z
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     pub fn normalized(&self) -> Vec3 {
-        Vec3 {x: self.x/self.norm(), y: self.y/self.norm(), z: self.z/self.norm()}
+        Vec3 {
+            x: self.x / self.norm(),
+            y: self.y / self.norm(),
+            z: self.z / self.norm(),
+        }
     }
 
     pub fn near_zero(&self) -> bool {
@@ -163,7 +205,7 @@ impl Vec3 {
         Vec3 {
             x: u.y * v.z - u.z * v.y,
             y: u.z * v.x - u.x * v.z,
-            z: u.x * v.y - u.y * v.x
+            z: u.x * v.y - u.y * v.x,
         }
     }
 }

@@ -1,6 +1,5 @@
 use clap::{App, Arg, SubCommand};
 
-
 #[derive(Clone)]
 pub struct CliArgs {
     pub img_x: u32,
@@ -21,7 +20,7 @@ pub enum SubCommandArgs {
         pixel_x: u32,
         pixel_y: u32,
     },
-    GuiArgs {}
+    GuiArgs {},
 }
 
 pub fn read_cli() -> CliArgs {
@@ -116,14 +115,14 @@ pub fn read_cli() -> CliArgs {
                         if re.is_match(&s) {
                             Ok(())
                         } else {
-                            Err(String::from("Expected input of the form: x/y with x and y being integers"))
+                            Err(String::from(
+                                "Expected input of the form: x/y with x and y being integers",
+                            ))
                         }
                     }),
             ),
         )
-        .subcommand(
-            App::new("gui").about("Run with GUI")
-        )
+        .subcommand(App::new("gui").about("Run with GUI"))
         .get_matches();
 
     // otuput file
@@ -188,9 +187,7 @@ pub fn read_cli() -> CliArgs {
 
             SubCommandArgs::DbgArgs { pixel_x, pixel_y }
         }
-        ("gui", Some(gui_matches)) => {
-            SubCommandArgs::GuiArgs {}
-        }
+        ("gui", Some(_gui_matches)) => SubCommandArgs::GuiArgs {},
         _ => panic!(),
     };
 

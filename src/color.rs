@@ -1,4 +1,5 @@
 use std::ops;
+
 use image::Rgb;
 
 use crate::ray;
@@ -14,7 +15,11 @@ impl ops::Add<Color> for Color {
     type Output = Color;
 
     fn add(self, rhs: Color) -> Color {
-        Color { r: self.r+rhs.r, g: self.g+rhs.g, b: self.b+rhs.b }
+        Color {
+            r: self.r + rhs.r,
+            g: self.g + rhs.g,
+            b: self.b + rhs.b,
+        }
     }
 }
 
@@ -22,7 +27,11 @@ impl ops::Sub<Color> for Color {
     type Output = Color;
 
     fn sub(self, rhs: Color) -> Color {
-        Color { r: self.r-rhs.r, g: self.g-rhs.g, b: self.b-rhs.b }
+        Color {
+            r: self.r - rhs.r,
+            g: self.g - rhs.g,
+            b: self.b - rhs.b,
+        }
     }
 }
 
@@ -30,7 +39,11 @@ impl ops::Mul<Color> for Color {
     type Output = Color;
 
     fn mul(self, rhs: Color) -> Color {
-        Color { r: self.r*rhs.r, g: self.g*rhs.g, b: self.b*rhs.b }
+        Color {
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+        }
     }
 }
 
@@ -38,7 +51,11 @@ impl ops::Mul<f64> for Color {
     type Output = Color;
 
     fn mul(self, rhs: f64) -> Color {
-        Color { r: self.r*rhs, g: self.g*rhs, b: self.b*rhs }
+        Color {
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
+        }
     }
 }
 
@@ -46,7 +63,11 @@ impl ops::Mul<Color> for f64 {
     type Output = Color;
 
     fn mul(self, rhs: Color) -> Color {
-        Color { r: rhs.r*self, g: rhs.g*self, b: rhs.b*self }
+        Color {
+            r: rhs.r * self,
+            g: rhs.g * self,
+            b: rhs.b * self,
+        }
     }
 }
 
@@ -54,60 +75,69 @@ impl ops::Div<f64> for Color {
     type Output = Color;
 
     fn div(self, rhs: f64) -> Color {
-        Color { r: self.r/rhs, g: self.g/rhs, b: self.b/rhs }
+        Color {
+            r: self.r / rhs,
+            g: self.g / rhs,
+            b: self.b / rhs,
+        }
     }
 }
 
 impl ops::AddAssign for Color {
-
     fn add_assign(&mut self, rhs: Self) {
         self.r += rhs.r;
         self.g += rhs.g;
         self.b += rhs.b;
     }
-    
 }
 
 impl ops::DivAssign<f64> for Color {
-
     fn div_assign(&mut self, rhs: f64) {
         self.r /= rhs;
         self.g /= rhs;
         self.b /= rhs;
     }
-    
 }
 
-
 impl Color {
-
     pub fn new_rgb(r: u8, g: u8, b: u8) -> Color {
         let rf = (r as f64) / 255.0;
         let gf = (g as f64) / 255.0;
         let bf = (b as f64) / 255.0;
-        Color {r: rf, g: gf, b: bf}
+        Color {
+            r: rf,
+            g: gf,
+            b: bf,
+        }
     }
 
     pub fn new(r: f64, g: f64, b: f64) -> Color {
-        Color {r, g, b}
+        Color { r, g, b }
     }
 
     pub fn sky(ray: &ray::Ray) -> Color {
         let unit_dir = ray.dir.normalized();
         let t = 0.5 * (unit_dir.y + 1.0);
-        (1.0-t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+        (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
     }
 
     pub fn white() -> Color {
-        Color {r: 1.0, g: 1.0, b: 1.0}
+        Color {
+            r: 1.0,
+            g: 1.0,
+            b: 1.0,
+        }
     }
-    
+
     pub fn black() -> Color {
-        Color {r: 0.0, g: 0.0, b: 0.0}
+        Color {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+        }
     }
 
     pub fn to_pixel(&self, num_samples: u32) -> image::Rgb<u8> {
-
         let mut r = self.r;
         let mut g = self.g;
         let mut b = self.b;
@@ -124,9 +154,8 @@ impl Color {
 
         image::Rgb([ri, gi, bi])
     }
-    
-    pub fn to_pixel_rgba(&self, num_samples: u32) -> image::Rgba<u8> {
 
+    pub fn to_pixel_rgba(&self, num_samples: u32) -> image::Rgba<u8> {
         let mut r = self.r;
         let mut g = self.g;
         let mut b = self.b;
@@ -145,14 +174,13 @@ impl Color {
     }
 
     pub fn from_pixel_rgba(pixel: image::Rgba<u8>) -> Color {
-
         let colors = pixel.0;
 
         let r = (colors[0] as f64) / 255.0;
         let g = (colors[1] as f64) / 255.0;
         let b = (colors[2] as f64) / 255.0;
 
-        Color {r, g, b}
+        Color { r, g, b }
     }
 
     pub fn near_zero(&self) -> bool {

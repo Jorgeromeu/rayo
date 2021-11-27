@@ -9,13 +9,13 @@ pub enum Material {
     Lambertian { albedo: Texture },
     Metal { albedo: Texture, fuzz: f64 },
     Dielectric { ior: f64, color: Texture },
-    DiffuseLight { texture: Texture }
+    DiffuseLight { texture: Texture },
 }
 
 impl Material {
     pub fn scatter(self, ray_in: &Ray, hit: HitInfo) -> Option<(Color, Ray)> {
         match self {
-            Material::Lambertian {albedo} => {
+            Material::Lambertian { albedo } => {
                 let mut scatter_dir = hit.normal + Vec3::random_unit();
 
                 // catch degenerate scatter direction
@@ -27,8 +27,7 @@ impl Material {
                 let attenuation = albedo.value(hit.point);
                 Some((attenuation, scattered_ray))
             }
-            Material::Metal {albedo, fuzz} => {
-                
+            Material::Metal { albedo, fuzz } => {
                 let mut reflected = reflect(&ray_in.dir, &hit.normal).normalized();
 
                 // fuzz the reflection
@@ -45,13 +44,13 @@ impl Material {
                     None
                 }
             }
-            Material::Dielectric { ior, color} => {
-                let refraction_ratio = if hit.front_face { 1.0/ior } else { ior };
+            Material::Dielectric { ior, color } => {
+                let refraction_ratio = if hit.front_face { 1.0 / ior } else { ior };
                 let unit_dir = ray_in.dir.normalized();
 
                 // check for total internal reflection
                 let costheta = f64::min(Vec3::dot(&(-unit_dir), &hit.normal), 1.0);
-                let sintheta = (1.0 - costheta*costheta).sqrt();
+                let sintheta = (1.0 - costheta * costheta).sqrt();
 
                 let cannot_refract = refraction_ratio * sintheta > 1.0;
                 let reflectance_high = reflectance(costheta, refraction_ratio) > rand::random();
@@ -67,29 +66,26 @@ impl Material {
 
                 Some((attenuation, scattered))
             }
-            Material::DiffuseLight { texture: _ } => None
+            Material::DiffuseLight { texture: _ } => None,
         }
     }
     pub fn emmit(self, _u: f64, _v: f64, p: Vec3) -> Color {
         match self {
-            Material::DiffuseLight { texture }=> {
-                texture.value(p)
-            },
-            _ => Color::black()
+            Material::DiffuseLight { texture } => texture.value(p),
+            _ => Color::black(),
         }
     }
-
 }
 
 // private helper functions
 
-fn reflect(vec: &Vec3, normal: &Vec3) -> Vec3{
+fn reflect(vec: &Vec3, normal: &Vec3) -> Vec3 {
     *vec - 2.0 * Vec3::dot(vec, normal) * *normal
 }
 
 fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
-    let r0 = ((1.0-ref_idx) / (1.0+ref_idx)).powi(2);
-    r0 + (1.0-r0)*(1.0 - cosine).powi(5)
+    let r0 = ((1.0 - ref_idx) / (1.0 + ref_idx)).powi(2);
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
 
 fn refract(vec: &Vec3, normal: &Vec3, etai_over_etat: f64) -> Vec3 {
