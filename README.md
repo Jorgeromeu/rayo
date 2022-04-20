@@ -1,6 +1,6 @@
 # Rayo
 
-A ray tracer implementation written in rust. Inspired by the amazing  [_Ray Tracing in One Weekend_](https://raytracing.github.io/) book series.
+A path tracer written in rust. Inspired by the amazing  [_Ray Tracing in One Weekend_](https://raytracing.github.io/) book series.
 
 # Renders
 
